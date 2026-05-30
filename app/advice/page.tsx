@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { Heart } from "lucide-react";
@@ -39,9 +38,10 @@ export default function AdvicePage() {
     const term = search.trim().toLowerCase();
     if (!term) return featuredArticles;
 
-    return featuredArticles.filter((article) =>
-      article.title.toLowerCase().includes(term) ||
-      article.tag.toLowerCase().includes(term)
+    return featuredArticles.filter(
+      (article) =>
+        article.title.toLowerCase().includes(term) ||
+        article.tag.toLowerCase().includes(term)
     );
   }, [search]);
 
@@ -56,42 +56,6 @@ export default function AdvicePage() {
             Get practical guidance, styling ideas, and planning tips to help you make the most of your event and photo booth experience.
           </p>
 
-<<<<<<< HEAD
-        <div className="flex items-end justify-between gap-4 border-b border-[#ddd6cd] pb-6 mb-8">
-          <h2 className="section-title leading-none">Recently Published</h2>
-          <button className="text-[#9b5744] text-base md:text-xl font-medium tracking-tight hover:opacity-80 transition-opacity">
-            View All
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-6">
-          {featuredArticles.map((article) => (
-            <article
-              key={article.title}
-              className="group rounded-[2rem] overflow-hidden border border-[#ddd6cd] bg-[#f3f1ee] hover:-translate-y-1 transition-all duration-300"
-            >
-              <div className="relative">
-                <Image
-                  src={article.image}
-                  alt={article.title}
-                  width={1400}
-                  height={800}
-                  className="h-[250px] sm:h-[300px] md:h-[340px] lg:h-[360px] w-full object-cover rounded-t-[2rem]"
-                />
-                <button
-                  aria-label="Save article"
-                  className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white flex items-center justify-center text-jiffy-dark shadow-md"
-                >
-                  <Heart size={20} strokeWidth={2.1} />
-                </button>
-              </div>
-              <div className="p-4 md:p-5">
-                <p className="text-jiffy-dark/60 text-xs md:text-sm uppercase tracking-wide mb-2 font-semibold">{article.tag}</p>
-                <h3 className="text-[1.35rem] md:text-[1.6rem] font-medium leading-tight">{article.title}</h3>
-              </div>
-            </article>
-          ))}
-=======
           <div className="max-w-xl mx-auto relative group mt-7">
             <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-jiffy-dark/50 group-focus-within:text-[#9b5744] transition-colors">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -102,88 +66,54 @@ export default function AdvicePage() {
             <input
               type="text"
               value={search}
-              export default function AdvicePage() {
-                const [search, setSearch] = useState("");
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search article..."
+              className="w-full rounded-full border border-[#d8d8d8] bg-white py-3.5 pl-12 pr-6 text-base text-jiffy-dark outline-none transition-all focus:border-[#9b5744] focus:ring-4 focus:ring-[#9b5744]/10"
+            />
+          </div>
+        </div>
+      </section>
 
-                const filteredArticles = useMemo(() => {
-                  const term = search.trim().toLowerCase();
-                  if (!term) return featuredArticles;
+      <section className="max-w-[1440px] mx-auto px-6 sm:px-8 md:px-10 lg:px-12 pb-20 md:pb-24">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
+          {filteredArticles.map((article) => (
+            <article
+              key={article.title}
+              className="group rounded-[1.6rem] overflow-hidden border border-[#ddd6cd] bg-[#f3f1ee] hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className="relative h-[240px] sm:h-[260px] md:h-[280px] lg:h-[260px]">
+                <Image
+                  src={article.image}
+                  alt={article.title}
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  className="object-cover"
+                />
+                <button
+                  aria-label="Save article"
+                  className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white flex items-center justify-center text-jiffy-dark shadow-md"
+                >
+                  <Heart size={20} strokeWidth={2.1} />
+                </button>
+              </div>
+              <div className="p-4 md:p-5">
+                <p className="text-jiffy-dark/60 text-[11px] md:text-sm uppercase tracking-wide mb-2 font-semibold">
+                  {article.tag}
+                </p>
+                <h3 className="text-[1.05rem] md:text-[1.18rem] font-medium leading-snug">
+                  {article.title}
+                </h3>
+              </div>
+            </article>
+          ))}
 
-                  return featuredArticles.filter((article) =>
-                    article.title.toLowerCase().includes(term) ||
-                    article.tag.toLowerCase().includes(term)
-                  );
-                }, [search]);
-
-                return (
-                  <main className="min-h-screen bg-[#f3f1ee] text-jiffy-dark font-inter">
-                    <section className="bg-[#f3f1ee] py-10 md:py-14 px-6">
-                      <div className="max-w-5xl mx-auto text-center">
-                        <h1 className="font-inter font-semibold tracking-tight text-2xl md:text-4xl text-jiffy-dark">
-                          Articles
-                        </h1>
-                        <p className="mt-4 font-inter text-sm md:text-base text-jiffy-dark/80 max-w-3xl mx-auto leading-relaxed">
-                          Get practical guidance, styling ideas, and planning tips to help you make the most of your event and photo booth experience.
-                        </p>
-
-                        <div className="max-w-xl mx-auto relative group mt-7">
-                          <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-jiffy-dark/50 group-focus-within:text-[#9b5744] transition-colors">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <circle cx="11" cy="11" r="8" />
-                              <path d="m21 21-4.3-4.3" />
-                            </svg>
-                          </span>
-                          <input
-                            type="text"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            placeholder="Search article..."
-                            className="w-full rounded-full border border-[#d8d8d8] bg-white py-3.5 pl-12 pr-6 text-base text-jiffy-dark outline-none transition-all focus:border-[#9b5744] focus:ring-4 focus:ring-[#9b5744]/10"
-                          />
-                        </div>
-                      </div>
-                    </section>
-
-                    <section className="max-w-[1440px] mx-auto px-6 sm:px-8 md:px-10 lg:px-12 pb-20 md:pb-24">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
-                        {filteredArticles.map((article) => (
-                          <article
-                            key={article.title}
-                            className="group rounded-[1.6rem] overflow-hidden border border-[#ddd6cd] bg-[#f3f1ee] hover:-translate-y-1 transition-all duration-300"
-                          >
-                            <div className="relative h-[240px] sm:h-[260px] md:h-[280px] lg:h-[260px]">
-                              <Image
-                                src={article.image}
-                                alt={article.title}
-                                fill
-                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                                className="object-cover"
-                              />
-                              <button
-                                aria-label="Save article"
-                                className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white flex items-center justify-center text-jiffy-dark shadow-md"
-                              >
-                                <Heart size={20} strokeWidth={2.1} />
-                              </button>
-                            </div>
-                            <div className="p-4 md:p-5">
-                              <p className="text-jiffy-dark/60 text-[11px] md:text-sm uppercase tracking-wide mb-2 font-semibold">
-                                {article.tag}
-                              </p>
-                              <h3 className="text-[1.05rem] md:text-[1.18rem] font-medium leading-snug">
-                                {article.title}
-                              </h3>
-                            </div>
-                          </article>
-                        ))}
-
-                        {filteredArticles.length === 0 && (
-                          <div className="lg:col-span-4 rounded-[2rem] border border-gray-200 bg-white p-12 text-center text-gray-500 shadow-sm">
-                            No matching articles found.
-                          </div>
-                        )}
-                      </div>
-                    </section>
-                  </main>
-                );
-              }
+          {filteredArticles.length === 0 && (
+            <div className="lg:col-span-4 rounded-[2rem] border border-gray-200 bg-white p-12 text-center text-gray-500 shadow-sm">
+              No matching articles found.
+            </div>
+          )}
+        </div>
+      </section>
+    </main>
+  );
+}
