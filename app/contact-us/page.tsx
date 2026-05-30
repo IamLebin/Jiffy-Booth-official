@@ -1,49 +1,113 @@
 import { client } from "@/sanity/lib/client";
-import EnquiryForm from "@/components/EnquiryForm";
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 
-interface BookingStep { title?: string; description?: string }
+type BookingStep = { title?: string; description?: string };
 
-export default async function ContactPage() {
-  // Fetch data server-side
-  let data = null;
-  let headerFooterSettings = null;
-  
-  try {
-    data = await client.fetch(`*[_type == "contactPage"][0]`);
-    headerFooterSettings = await client.fetch(
-      `*[_type == "headerFooter"][0] {
-        whatsappSettings {
-          whatsappNumber
-        }
-      }`
-    );
-  } catch (err) {
-    console.error("Sanity fetch error:", err);
-  }
+type ContactPageData = {
+  whatsappNumber?: string;
+  instagramUser?: string;
+  emailAddress?: string;
+  bookingTitle?: string;
+  bookingSteps?: BookingStep[];
+};
 
-  const whatsappNumber = headerFooterSettings?.whatsappSettings?.whatsappNumber || data?.whatsappNumber || '60163966562';
-  const emailAddress = data?.emailAddress || 'hello@jiffybooth.com';
-  const instagramUser = data?.instagramUser || 'jiffybooth';
+export default function ContactPage() {
+  const [data, setData] = useState<ContactPageData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const formSectionRef = useRef<HTMLDivElement | null>(null);
 
-  return (
-    <main className="min-h-screen bg-[#ffffff] font-inter overflow-x-hidden">
+  // Form States
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [formData, setFormData] = useState({
+    name: '',
+    tel: '',
+    email: '',
+    event: '',
+    date: '',
+    time: '',
+    description: ''
+  });
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const result = await client.fetch(`*[_type == "contactPage"][0]`);
+        setData(result);
+      } catch (err) {
+        console.error("Sanity fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (loading) return;
+    if (window.location.hash !== '#contact-form') return;
+
+    requestAnimationFrame(() => {
+      formSectionRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    });
+  }, [loading]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // DIRECT GMAIL FUNCTION ---
+  const handleEmailClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const email = data?.emailAddress || 'hello@jiffybooth.com';
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=Enquiry for Jiffy Booth`;
+    window.open(gmailUrl, '_blank');
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const message = `
+*Quotation Request*
+
+*Name:* ${formData.name}
+*Tel:* ${formData.tel}
+*Email:* ${formData.email}
+*Event:* ${formData.event}
+*Date:* ${formData.date}
+*Time:* ${formData.time || 'Not specified'}
+*Description:* ${formData.description || 'Not provided'}
+    `.trim();
+
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappNumber = data?.whatsappNumber || '60163966562';
+
+    window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, '_blank');
+
+    setFormData({ name: '', tel: '', email: '', event: '', date: '', time: '', description: '' });
+    setStatus('success');
+
+    setTimeout(() => setStatus('idle'), 3000);
+  };
+
+  if (loading) return <div className="min-h-screen bg-[#f3f1ee]" />;
       {/* --- ULTRA-COMPACT HEADER --- */}
-      <section className="bg-[#2c343f] py-6 md:py-10 px-6 sm:px-12 lg:px-16">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 className="section-title text-white">
-              Contact Us
-            </h1>
-            <div className="h-1 w-12 bg-blue-400 mt-1 rounded-full hidden md:block"></div>
-          </div>
-          <p className="text-gray-400 text-sm md:text-base max-w-md leading-snug md:text-right">
-            Have questions about our booths or want to check availability? Reach out through any channel below.       
+      <section className="py-6 md:py-10 px-6 sm:px-12 lg:px-16">
+        <div className="max-w-5xl mx-auto text-center">
+          <h1 className="font-inter font-semibold tracking-tight text-2xl md:text-4xl text-[#212121]">
+            Contact Us
+          </h1>
+          <p className="mt-4 font-inter text-sm md:text-base text-[#6f685a] max-w-3xl mx-auto leading-relaxed">
+            Have questions about our booths or want to check availability? Reach out through any channel below.
           </p>
         </div>
       </section>
 
       {/* --- DYNAMIC CONTACT ZONE --- */}
-      <section className="w-full bg-gray-50 py-4 md:py-6 border-b border-gray-100">
+      <section className="w-full bg-[#f3f1ee] py-4 md:py-6 border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-6">
           
           {/* WhatsApp Card */}
@@ -57,8 +121,13 @@ export default async function ContactPage() {
             <div className="flex flex-col text-left md:text-center overflow-hidden">
               <h3 className="text-[#1c2431] text-xl font-bold">WhatsApp</h3>
               <p className="text-gray-500 text-sm mt-1 italic">Chat with us instantly</p>
+<<<<<<< HEAD
               <div className="mt-3 px-3 py-1.5 bg-gray-50 rounded-full text-[#1c2431] font-bold text-xs md:text-sm tracking-tight inline-block w-fit md:w-auto">
                 +{whatsappNumber}
+=======
+              <div className="mt-3 px-3 py-1.5 bg-#e7cfb4 rounded-full text-[#1c2431] font-bold text-xs md:text-sm tracking-tight inline-block w-fit md:w-auto">
+                +{data?.whatsappNumber || "60 16-396 6562"}
+>>>>>>> origin/main
               </div>
             </div>
           </a>
@@ -72,8 +141,13 @@ export default async function ContactPage() {
             <div className="flex flex-col text-left md:text-center overflow-hidden">
               <h3 className="text-[#1c2431] text-xl font-bold">Instagram</h3>
               <p className="text-gray-500 text-sm mt-1 italic">Instant profile check</p>
+<<<<<<< HEAD
               <div className="mt-3 px-3 py-1.5 bg-gray-50 rounded-full text-[#1c2431] font-bold text-xs md:text-sm inline-block w-fit md:w-auto">
                 @{instagramUser}
+=======
+              <div className="mt-3 px-3 py-1.5 bg-#e7cfb4 rounded-full text-[#1c2431] font-bold text-xs md:text-sm inline-block w-fit md:w-auto">
+                @{data?.instagramUser || "jiffybooth"}
+>>>>>>> origin/main
               </div>
             </div>
           </a>
@@ -87,8 +161,13 @@ export default async function ContactPage() {
             <div className="flex flex-col text-left md:text-center overflow-hidden">
               <h3 className="text-[#1c2431] text-xl font-bold">Email</h3>
               <p className="text-gray-500 text-sm mt-1 italic">Professional Enquiries</p>
+<<<<<<< HEAD
               <div className="mt-3 px-3 py-1.5 bg-gray-50 rounded-full text-[#1c2431] font-bold text-xs md:text-sm truncate inline-block w-fit md:w-auto">
                 {emailAddress}
+=======
+              <div className="mt-3 px-3 py-1.5 bg-#e7cfb4 rounded-full text-[#1c2431] font-bold text-xs md:text-sm truncate inline-block w-fit md:w-auto">
+                {data?.emailAddress || "hello@jiffybooth.com"}
+>>>>>>> origin/main
               </div>
             </div>
           </a>
@@ -97,7 +176,7 @@ export default async function ContactPage() {
       </section>
 
       {/* --- TIMELINE AND FORM SECTION --- */}
-      <section className="max-w-6xl mx-auto py-12 md:py-16 px-6 sm:px-12 lg:px-16">
+      <section className="max-w-6xl mx-auto py-12 md:py-16 px-3 sm:px-12 lg:px-16">
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-20 items-start">
           {/* LEFT: TIMELINE */}
           <div className="flex-1 w-full relative">
@@ -123,8 +202,113 @@ export default async function ContactPage() {
           </div>
 
           {/* RIGHT: FORM */}
+<<<<<<< HEAD
           <div id="contact-form" className="flex-1 lg:max-w-xl scroll-mt-24">
             <EnquiryForm whatsappNumber={whatsappNumber} isDarkBackground={true} />
+=======
+          <div id="contact-form" ref={formSectionRef} className="flex-1 w-full lg:max-w-xl scroll-mt-24">
+            <div className="bg-white rounded-[1.5rem] md:rounded-[2rem] p-4 md:p-10 shadow-2xl text-jiffy-dark border border-gray-100 w-full">
+              <h2 className="section-title mb-6 md:mb-8 text-[#2c343f]">Quotation Request</h2>
+              
+              <form onSubmit={handleSubmit} className="space-y-3 md:space-y-6">
+                <div className="space-y-1 md:space-y-2">
+                  <label className="font-bold block text-[11px] md:text-sm uppercase tracking-wider text-[#2c343f]">Name:</label>
+                  <input 
+                    name="name"
+                    type="text" 
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="Your Full Name" 
+                    required
+                    className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 md:p-3 text-sm outline-none focus:border-[#2c343f] transition-colors" 
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 md:gap-6">
+                  <div className="space-y-1 md:space-y-2 min-w-0">
+                    <label className="font-bold block text-[11px] md:text-sm uppercase tracking-wider text-[#2c343f]">Tel:</label>
+                    <input 
+                      name="tel"
+                      type="tel" 
+                      value={formData.tel}
+                      onChange={handleChange}
+                      placeholder="Phone Number" 
+                      required
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 md:p-3 text-sm outline-none focus:border-[#2c343f] transition-colors" 
+                    />
+                  </div>
+                  <div className="space-y-1 md:space-y-2 min-w-0">
+                    <label className="font-bold block text-[11px] md:text-sm uppercase tracking-wider text-[#2c343f]">Email:</label>
+                    <input 
+                      name="email"
+                      type="email" 
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="Email Address" 
+                      required
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 md:p-3 text-sm outline-none focus:border-[#2c343f] transition-colors" 
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1 md:space-y-2">
+                  <label className="font-bold block text-[11px] md:text-sm uppercase tracking-wider text-[#2c343f]">Event:</label>
+                  <input 
+                    name="event"
+                    type="text" 
+                    value={formData.event}
+                    onChange={handleChange}
+                    placeholder="e.g. Wedding, Corporate Launch" 
+                    required
+                    className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 md:p-3 text-sm outline-none focus:border-[#2c343f] transition-colors" 
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 md:gap-6">
+                  <div className="space-y-1 md:space-y-2 min-w-0">
+                    <label className="font-bold block text-[11px] md:text-sm uppercase tracking-wider text-[#2c343f]">Date:</label>
+                    <input 
+                      name="date"
+                      type="date" 
+                      value={formData.date}
+                      onChange={handleChange}
+                      required
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 md:p-3 text-sm outline-none text-gray-500 focus:border-[#2c343f] transition-colors" 
+                    />
+                  </div>
+                  <div className="space-y-1 md:space-y-2 min-w-0">
+                    <label className="font-bold block text-[11px] md:text-sm uppercase tracking-wider text-[#2c343f]">Time:</label>
+                    <input 
+                      name="time"
+                      type="time" 
+                      value={formData.time}
+                      onChange={handleChange}
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 md:p-3 text-sm outline-none text-gray-500 focus:border-[#2c343f] transition-colors" 
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1 md:space-y-2">
+                  <label className="font-bold block text-[11px] md:text-sm uppercase tracking-wider text-[#2c343f]">Description:</label>
+                  <textarea 
+                    name="description"
+                    rows={3} 
+                    value={formData.description}
+                    onChange={handleChange}
+                    placeholder="Tell us more about your event details..." 
+                    className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 md:p-3 text-sm outline-none resize-none focus:border-[#2c343f] transition-colors"
+                  ></textarea>
+                </div>
+
+                <button 
+                  type="submit"
+                    className="w-full bg-[#2c343f] text-white font-bold py-3 md:py-4 rounded-xl mt-2 md:mt-4 uppercase tracking-[0.16em] md:tracking-[0.2em] hover:bg-black transition-all active:scale-[0.98] text-sm"
+                >
+                  {status === 'success' ? 'Opening WhatsApp...' : 'Submit via WhatsApp'}
+                </button>
+              </form>
+            </div>
+>>>>>>> origin/main
           </div>
         </div>
       </section>
