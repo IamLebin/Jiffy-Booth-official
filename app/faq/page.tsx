@@ -1,17 +1,11 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { createClient } from "next-sanity";
-
-const client = createClient({
-  projectId: "g8867hcl", 
-  dataset: "production",
-  apiVersion: "2024-01-01",
-  useCdn: true,
-});
+import { client } from "@/sanity/lib/client";
 
 export default function FAQPage() {
-  const [data, setData] = useState<any>(null);
+  interface FaqItem { question: string; answer: string }
+  const [data, setData] = useState<{ faqs?: FaqItem[]; title?: string; subtitle?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
@@ -53,8 +47,13 @@ export default function FAQPage() {
             General
           </h2>
 
-          <div className="bg-transparent">
-            {faqs.map((faq: any, faqIndex: number) => {
+<<<<<<< HEAD
+          <div className="border-t border-b border-[#e3dbd0] bg-transparent">
+            {faqs.map((faq: FaqItem, faqIndex: number) => {
+=======
+          <div className="border-t border-b border-[#e3dbd0] bg-transparent">
+            {faqs.map((faq: FaqItem, faqIndex: number) => {
+>>>>>>> origin/main
               const isOpen = openIndex === faqIndex;
 
               return (
