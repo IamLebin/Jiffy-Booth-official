@@ -42,7 +42,7 @@ export default function FAQPage() {
           {data?.subtitle || "From weddings to corporate events, our booths add a touch of fun and create lasting memories for every occasion."}
         </p>
 
-          <div className="max-w-6xl mx-auto text-left">
+        <div className="max-w-6xl mx-auto text-left">
           <h2 className="mb-6 md:mb-8 text-[#212121] text-left font-inter font-bold tracking-tight text-2xl md:text-4xl w-full">
             General
           </h2>
