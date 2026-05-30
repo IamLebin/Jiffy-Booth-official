@@ -321,11 +321,11 @@ export default function RootLayout({
         </div>
 
         {/* --- FOOTER SECTION --- */}
-        <footer className="bg-jiffy-dark text-white py-12 px-6 mt-auto">
-          <div className="max-w-7xl mx-auto">
-            <div className={`flex flex-col lg:flex-row gap-16 ${isContactPage ? 'justify-between' : ''}`}>
+        <footer className="bg-jiffy-dark text-white py-12 px-8 sm:px-10 lg:px-16 mt-auto">
+          <div className="max-w-7xl mx-auto px-2 sm:px-4">
+            <div className={`flex flex-col lg:flex-row gap-16 lg:gap-12 ${isContactPage ? 'justify-between' : ''}`}>
               
-              <div className="flex-1 space-y-12">
+              <div className="flex-[0.9] space-y-12">
                 <div className="space-y-6">
                   <h2 className="text-3xl font-bold uppercase tracking-tighter">{companyName}</h2>
                   <p className="text-gray-400 text-lg leading-relaxed max-w-sm font-light">
@@ -378,7 +378,7 @@ export default function RootLayout({
 
               {/* --- ENQUIRY FORM --- */}
               {!isContactPage && (
-                <div className="flex-1 lg:max-w-xl">
+                <div className="flex-[1.1] lg:max-w-xl">
                   <div className="bg-white rounded-[2rem] p-5 md:p-10 shadow-2xl text-jiffy-dark">
                     <h2 className="text-2xl md:text-3xl font-bold mb-5 md:mb-8 uppercase tracking-tighter">Quotation Request</h2>
                     
