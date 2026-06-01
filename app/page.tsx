@@ -354,8 +354,8 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-7 gap-y-10">
             {filteredPreviewEvents.slice(0, 8).map((item: any, index: number) => (
               <Link key={index} href={`/our-events`} className="group block">
-                <div className="overflow-hidden rounded-[1.5rem] bg-white">
-                  <div className="relative aspect-[4/3] w-full">
+                <div>
+                  <div className="relative aspect-square w-full rounded-[1rem] overflow-hidden">
                     {item?.image ? (
                       <Image src={item.image} alt={item?.title || 'Event Type'} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
                     ) : (
@@ -364,10 +364,8 @@ export default function Home() {
                       </div>
                     )}
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-bold text-lg text-jiffy-dark">{item?.title}</h3>
-                    {item?.description && <p className="mt-2 text-sm text-jiffy-dark/70">{item.description}</p>}
-                  </div>
+
+                  <h3 className="mt-4 font-serif italic text-jiffy-dark text-lg text-left">{item?.title}</h3>
                 </div>
               </Link>
             ))}

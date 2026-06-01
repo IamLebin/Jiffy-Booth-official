@@ -1,6 +1,9 @@
+"use client";
+
 import { client } from "@/sanity/lib/client";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import EnquiryForm from "@/components/EnquiryForm";
 
 type BookingStep = { title?: string; description?: string };
 

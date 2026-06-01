@@ -48,7 +48,7 @@ export default function EnquiryForm({ whatsappNumber = '60172082266', isDarkBack
     setTimeout(() => setStatus('idle'), 3000);
   };
 
-  const labelClass = `font-bold block text-sm uppercase tracking-wider ${isDarkBackground ? 'text-white' : 'text-jiffy-dark'}`;
+  const labelClass = `font-bold block text-sm uppercase tracking-wider text-black`;
   const inputClass = "w-full bg-gray-50 border border-gray-200 rounded-lg p-3 outline-none focus:border-jiffy-dark transition-colors text-jiffy-dark";
 
   return (

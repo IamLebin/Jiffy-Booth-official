@@ -47,13 +47,8 @@ export default function FAQPage() {
             General
           </h2>
 
-<<<<<<< HEAD
           <div className="border-t border-b border-[#e3dbd0] bg-transparent">
             {faqs.map((faq: FaqItem, faqIndex: number) => {
-=======
-          <div className="border-t border-b border-[#e3dbd0] bg-transparent">
-            {faqs.map((faq: FaqItem, faqIndex: number) => {
->>>>>>> origin/main
               const isOpen = openIndex === faqIndex;
 
               return (
@@ -106,7 +101,7 @@ export default function FAQPage() {
           Still Have Questions?
         </h2>
         <a
-          href="https://wa.me/60172082266"
+          href={`https://wa.me/60172082266?text=${encodeURIComponent("Hi JiffyBooth, I would like to enquire about....")}`}
           className="inline-block text-white px-14 md:px-16 py-5 md:py-6 rounded-full font-bold uppercase tracking-[0.12em] shadow-xl hover:brightness-95 hover:-translate-y-0.5 active:translate-y-0 transition-all"
           style={{ backgroundColor: '#9b5744' }}
         >
