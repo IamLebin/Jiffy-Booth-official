@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { Sparkles } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { client } from "@/sanity/lib/client";
@@ -22,7 +22,7 @@ type EventCategory = {
   count: number;
 };
 
-export default function OurEventsPage() {
+function OurEventsPageContent() {
   const searchParams = useSearchParams();
   const [categorySearch, setCategorySearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(() => {
@@ -299,5 +299,13 @@ export default function OurEventsPage() {
       )}
 
     </main>
+  );
+}
+
+export default function OurEventsPage() {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-white text-slate-900 font-inter" />}>
+      <OurEventsPageContent />
+    </Suspense>
   );
 }
