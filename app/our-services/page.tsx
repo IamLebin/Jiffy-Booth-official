@@ -44,7 +44,7 @@ export default async function OurServicesPage() {
       {/* --- SERVICES GRID --- */}
       <section id="services" className="bg-[#f4f4f4] pb-16 md:pb-20 px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
           {sanityServices.map((service) => (
             <div key={service._id} className="group flex flex-col bg-white rounded-[2rem] overflow-hidden shadow-lg border border-gray-100 hover:-translate-y-1.5 transition-all duration-500">
               {/* Image */}

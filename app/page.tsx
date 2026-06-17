@@ -5,7 +5,7 @@ import Image from "next/image";
 import Glide from "@glidejs/glide";
 import { urlFor } from "@/sanity/lib/image";
 import Link from 'next/link';
-import { User, Star, ShieldCheck, Heart, Calendar, Sparkles } from "lucide-react"; 
+import { User, Star, ShieldCheck, Heart, Calendar, Sparkles, Maximize2, X } from "lucide-react"; 
 
 import "@glidejs/glide/dist/css/glide.core.min.css"; 
 
@@ -54,6 +54,7 @@ export default function Home() {
   const [eventsData, setEventsData] = useState<EventItem[]>([]);
   const [eventSearch, setEventSearch] = useState('');
   const [testimonialsCanScroll, setTestimonialsCanScroll] = useState(false);
+  const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
 
   // --- 1. DATA FETCHING ---
   useEffect(() => {
@@ -175,15 +176,16 @@ export default function Home() {
     return Array.from(grouped.values());
   }, [eventsData]);
 
-  const filteredPreviewEvents = useMemo(() => {
+  const filteredEvents = useMemo(() => {
     const term = eventSearch.trim().toLowerCase();
-    if (!term) return eventCategories;
+    if (!term) return eventsData;
 
-    return eventCategories.filter((item) =>
+    return eventsData.filter((item) =>
       (item?.title || '').toLowerCase().includes(term) ||
+      (item?.category || '').toLowerCase().includes(term) ||
       (item?.description || '').toLowerCase().includes(term)
     );
-  }, [eventCategories, eventSearch]);
+  }, [eventsData, eventSearch]);
 
   if (loading) {
     return <main className="min-h-screen bg-white font-inter overflow-x-hidden" />;
@@ -262,58 +264,56 @@ export default function Home() {
               </h2>
             </div>
 
-            <div className="services-scroll overflow-x-auto pb-4">
-              <div className="flex flex-nowrap gap-6 lg:gap-7 xl:gap-8 min-w-max">
-                {services.map((service: Service, index: number) => {
-                  const slug = service?.slug || `service-${index + 1}`;
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+              {services.map((service: Service, index: number) => {
+                const slug = service?.slug || `service-${index + 1}`;
 
-                  return (
-                    <Link
-                      key={index}
-                      href={`/services/${slug}`}
-                      className="group block text-jiffy-dark shrink-0 w-[250px] sm:w-[280px] lg:w-[260px] xl:w-[280px]"
-                    >
-                      <article className="space-y-3 h-full">
-                        <div className="overflow-hidden rounded-[2rem] transition-transform duration-500 group-hover:-translate-y-2">
-                          {service.image ? (
-                            <Image
-                              src={service.image}
-                              alt={service.title || ''}
-                              width={800}
-                              height={1000}
-                              className="h-[260px] md:h-[280px] lg:h-[240px] xl:h-[260px] w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                            />
-                          ) : (
-                            <div className="h-[260px] md:h-[280px] lg:h-[240px] xl:h-[260px] w-full bg-gradient-to-br from-[#f5ebe1] to-[#e7cfb4] flex items-center justify-center px-6 text-center border border-[#d9c0a3]">
-                              <div>
-                                <p className="text-jiffy-dark font-bold text-lg md:text-xl tracking-tight">
-                                  {service.title}
-                                </p>
-                                <p className="text-jiffy-dark/70 text-sm mt-2 uppercase tracking-[0.15em]">
-                                  Image Coming Soon
-                                </p>
-                              </div>
+                return (
+                  <Link
+                    key={index}
+                    href={`/services/${slug}`}
+                    className="group block text-jiffy-dark"
+                  >
+                    <article className="space-y-4 h-full">
+                      <div className="overflow-hidden rounded-[2rem] transition-transform duration-500 group-hover:-translate-y-2">
+                        {service.image ? (
+                          <Image
+                            src={service.image}
+                            alt={service.title || ''}
+                            width={800}
+                            height={1000}
+                            className="h-[320px] md:h-[400px] lg:h-[450px] w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="h-[320px] md:h-[400px] lg:h-[450px] w-full bg-gradient-to-br from-[#f5ebe1] to-[#e7cfb4] flex items-center justify-center px-6 text-center border border-[#d9c0a3]">
+                            <div>
+                              <p className="text-jiffy-dark font-bold text-lg md:text-xl tracking-tight">
+                                {service.title}
+                              </p>
+                              <p className="text-jiffy-dark/70 text-sm mt-2 uppercase tracking-[0.15em]">
+                                Image Coming Soon
+                              </p>
                             </div>
-                          )}
-                        </div>
-
-                        <div className="px-1">
-                          <h3 className="font-inter text-xl md:text-2xl lg:text-xl xl:text-2xl text-jiffy-dark mb-2">
-                            {service.title}
-                          </h3>
-                          <p className="text-sm md:text-[15px] lg:text-[13px] xl:text-sm leading-relaxed text-jiffy-dark/85">
-                            {service.description}
-                          </p>
-                          <div className="mt-4 inline-flex items-center gap-2 text-xs md:text-sm uppercase tracking-[0.2em] font-bold text-jiffy-dark">
-                            Learn More
-                            <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
                           </div>
+                        )}
+                      </div>
+
+                      <div className="px-1">
+                        <h3 className="font-inter text-xl md:text-2xl lg:text-3xl text-jiffy-dark mb-2">
+                          {service.title}
+                        </h3>
+                        <p className="text-sm md:text-base leading-relaxed text-jiffy-dark/85">
+                          {service.description}
+                        </p>
+                        <div className="mt-4 inline-flex items-center gap-2 text-xs md:text-sm uppercase tracking-[0.2em] font-bold text-jiffy-dark">
+                          Learn More
+                          <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
                         </div>
-                      </article>
-                    </Link>
-                  );
-                })}
-              </div>
+                      </div>
+                    </article>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -324,10 +324,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-4xl mx-auto mb-10 md:mb-12">
             <h2 className="section-title mb-4">
-              Event Types
+              Portfolio
             </h2>
             <p className="text-jiffy-dark/75 text-sm md:text-base leading-relaxed">
-              From weddings to corporate events, our booths add a touch of fun and create lasting memories for every occasion.
+              Explore our past setups and photo outputs. From 4R prints to classic strips, discover how our booths create lasting memories.
             </p>
 
             <div className="mt-8 max-w-md mx-auto relative">
@@ -337,47 +337,59 @@ export default function Home() {
                   <path d="m21 21-4.3-4.3" />
                 </svg>
               </span>
-              <label htmlFor="event-search" className="sr-only">Search event types</label>
+              <label htmlFor="event-search" className="sr-only">Search portfolio</label>
               <input
                 id="event-search"
                 type="text"
                 value={eventSearch}
                 onChange={(e) => setEventSearch(e.target.value)}
-                placeholder="Search event types..."
-                aria-label="Search event types"
+                placeholder="Search portfolio (e.g. wedding, strip)..."
+                aria-label="Search portfolio"
                 className="w-full rounded-full border border-transparent bg-[#e7e7e7] py-3 pl-11 pr-5 text-sm text-jiffy-dark outline-none transition-colors focus:border-[#c9c3bb] focus:bg-white"
               />
             </div>
           </div>
 
-          {/* Your UI: image cards with descriptions, using teammate's filteredPreviewEvents (categories) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-7 gap-y-10">
-            {filteredPreviewEvents.slice(0, 8).map((item, index: number) => (
-              <Link
+          {/* Masonry Layout Grid */}
+          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6">
+            {filteredEvents.slice(0, 12).map((item, index: number) => (
+              <div
                 key={index}
-                href={`/our-events/${item?.slug || toEventTypeSlug(item?.title || "")}`}
-                className="group block"
+                className="group relative break-inside-avoid mb-6 rounded-[1.5rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer bg-stone-100"
+                onClick={() => setEnlargedImage(item?.image || null)}
               >
-                <div>
-                  <div className="relative aspect-square w-full rounded-[1rem] overflow-hidden">
-                    {item?.image ? (
-                      <Image src={item.image} alt={item?.title || 'Event Type'} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
-                    ) : (
-                      <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-[#ece6de] to-[#dcd3c7]">
-                        <p className="font-serif italic text-lg text-jiffy-dark">Image Coming Soon</p>
-                      </div>
-                    )}
+                {item?.image ? (
+                  <Image 
+                    src={item.image} 
+                    alt={item?.title || 'Portfolio Image'} 
+                    width={600} 
+                    height={800} 
+                    className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-[1.02]" 
+                  />
+                ) : (
+                  <div className="w-full aspect-[3/4] flex items-center justify-center bg-gradient-to-br from-[#ece6de] to-[#dcd3c7]">
+                    <p className="font-serif italic text-sm text-jiffy-dark">No Image</p>
                   </div>
-
-                  <h3 className="mt-4 font-serif italic text-jiffy-dark text-lg text-left">{item?.title}</h3>
+                )}
+                
+                {/* Hover Overlay */}
+                <div className="absolute inset-0 flex items-end md:items-center justify-center p-4 md:p-0 bg-gradient-to-t from-black/60 to-transparent md:bg-jiffy-dark/40 md:from-transparent md:opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 md:backdrop-blur-sm">
+                  <div className="text-center w-full md:transform md:translate-y-4 group-hover:translate-y-0 transition-all duration-300 md:px-4">
+                    <p className="text-white font-bold tracking-widest uppercase text-sm md:text-base drop-shadow-md">
+                      {item?.category || item?.title}
+                    </p>
+                    <div className="mt-2 md:mt-4 md:opacity-0 group-hover:opacity-100 transition-opacity duration-300 inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/30">
+                      <Maximize2 className="w-5 h-5" />
+                    </div>
+                  </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
 
-          {filteredPreviewEvents.length === 0 && (
+          {filteredEvents.length === 0 && (
             <div className="mt-10 rounded-2xl border border-[#ddd5c9] bg-white p-8 text-center text-jiffy-dark/70">
-              No event types found.
+              No portfolio items found matching your search.
             </div>
           )}
 
@@ -386,7 +398,7 @@ export default function Home() {
               href="/our-events" 
               className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-[#9b5744] hover:text-jiffy-dark transition-colors"
             >
-              View All Event Types <span className="text-lg">→</span>
+              View Full Portfolio <span className="text-lg">→</span>
             </Link>
           </div>
         </div>
@@ -577,6 +589,28 @@ export default function Home() {
         )}
       </section>
 
+      {/* --- ENLARGE IMAGE MODAL --- */}
+      {enlargedImage && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-jiffy-dark/90 backdrop-blur-sm p-4 md:p-8" onClick={() => setEnlargedImage(null)}>
+          <button 
+            className="absolute top-6 right-6 text-white/80 hover:text-white p-2 transition-colors"
+            onClick={() => setEnlargedImage(null)}
+            aria-label="Close modal"
+          >
+            <X className="w-8 h-8" />
+          </button>
+          <div className="relative w-full max-w-5xl max-h-full flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+            <Image 
+              src={enlargedImage} 
+              alt="Enlarged view" 
+              width={1600} 
+              height={1600} 
+              className="max-w-full max-h-[85vh] w-auto h-auto object-contain rounded-xl shadow-2xl" 
+            />
+          </div>
+        </div>
+      )}
+
       <style jsx global>{`
         .glide__slide {
           opacity: 0.35;
@@ -649,15 +683,6 @@ export default function Home() {
         }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-        .services-scroll {
-          scrollbar-width: thin;
-          scrollbar-color: #9b5744 rgba(218, 170, 95, 0.22);
-          padding-bottom: 2rem;
-        }
-        .services-scroll::-webkit-scrollbar { height: 6px; }
-        .services-scroll::-webkit-scrollbar-track { background: rgba(155, 87, 68, 0.22); }
-        .services-scroll::-webkit-scrollbar-thumb { background: #9b5744; border-radius: 999px; }
-        .services-scroll::-webkit-scrollbar-thumb:hover { background: #9b5744; }
         .testimonial-scroll::-webkit-scrollbar { height: 4px; }
         .testimonial-scroll::-webkit-scrollbar-track { background: #e5e7eb; border-radius: 10px; margin: 0 25%; }
         .testimonial-scroll::-webkit-scrollbar-thumb { background: #1F2937; border-radius: 10px; }

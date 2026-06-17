@@ -12,24 +12,8 @@ type EventListItem = {
   slug: string;
 };
 
-type EventCategory = {
-  title: string;
-  slug: string;
-  image?: string;
-  description?: string;
-  count: number;
-};
-
-const toEventTypeSlug = (value: string) =>
-  value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-
 function OurEventsPageContent() {
-  const [categorySearch, setCategorySearch] = useState("");
+  const [eventSearch, setEventSearch] = useState("");
   const [events, setEvents] = useState<EventListItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -55,43 +39,15 @@ function OurEventsPageContent() {
     fetchEvents();
   }, []);
 
-  const eventCategories = useMemo<EventCategory[]>(() => {
-    const grouped = new Map<string, EventCategory>();
-
-    events.forEach((item) => {
-      const eventTypeTitle = (item.title || "").trim();
-      if (!eventTypeTitle) return;
-
-      const eventTypeSlug = (item.slug || "").trim() || toEventTypeSlug(eventTypeTitle);
-      if (!eventTypeSlug) return;
-
-      const existing = grouped.get(eventTypeSlug);
-      if (existing) {
-        existing.count += 1;
-        if (!existing.image && item.image) existing.image = item.image;
-        return;
-      }
-
-      grouped.set(eventTypeSlug, {
-        title: eventTypeTitle,
-        slug: eventTypeSlug,
-        image: item.image,
-        description: item.description,
-        count: 1,
-      });
-    });
-
-    return Array.from(grouped.values());
-  }, [events]);
-
-  const filteredCategories = useMemo(
+  const filteredEvents = useMemo(
     () =>
-      eventCategories.filter(
+      events.filter(
         (item) =>
-          item.title.toLowerCase().includes(categorySearch.toLowerCase()) ||
-          (item.description || "").toLowerCase().includes(categorySearch.toLowerCase())
+          (item.title || "").toLowerCase().includes(eventSearch.toLowerCase()) ||
+          (item.category || "").toLowerCase().includes(eventSearch.toLowerCase()) ||
+          (item.description || "").toLowerCase().includes(eventSearch.toLowerCase())
       ),
-    [eventCategories, categorySearch]
+    [events, eventSearch]
   );
 
   if (loading) {
@@ -103,9 +59,9 @@ function OurEventsPageContent() {
       <section className="py-16 md:py-20 px-6 bg-[#f4f4f4] border-t border-[#e8e3da]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-4xl mx-auto mb-10 md:mb-12">
-            <h1 className="section-title mb-4">Event Types</h1>
+            <h1 className="section-title mb-4">Portfolio</h1>
             <p className="text-jiffy-dark/75 text-sm md:text-base leading-relaxed">
-              From weddings to corporate events, our booths add a touch of fun and create lasting memories for every occasion.
+              Explore our past setups and photo outputs. From 4R prints to classic strips, discover how our booths create lasting memories.
             </p>
 
             <div className="mt-8 max-w-md mx-auto relative">
@@ -118,73 +74,64 @@ function OurEventsPageContent() {
               <input
                 suppressHydrationWarning
                 type="text"
-                value={categorySearch}
-                onChange={(e) => setCategorySearch(e.target.value)}
-                placeholder="Search event types..."
+                value={eventSearch}
+                onChange={(e) => setEventSearch(e.target.value)}
+                placeholder="Search portfolio (e.g. wedding, strip)..."
                 className="w-full rounded-full border border-transparent bg-[#e7e7e7] py-3 pl-11 pr-5 text-sm text-jiffy-dark outline-none transition-colors focus:border-[#c9c3bb] focus:bg-white"
               />
             </div>
           </div>
 
-          <div className="md:hidden -mx-6 px-6 overflow-x-auto scrollbar-hide pb-2">
-            <div className="flex gap-4 w-max snap-x snap-mandatory">
-              {filteredCategories.map((item, index) => (
+          {/* Masonry Layout Grid */}
+          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6">
+            {filteredEvents.map((item, index) => {
+              // Assign varying heights to create a true Pinterest-style masonry grid
+              const heightClasses = [
+                "h-[300px] md:h-[400px]",
+                "h-[400px] md:h-[550px]",
+                "h-[250px] md:h-[350px]",
+                "h-[450px] md:h-[600px]",
+                "h-[350px] md:h-[450px]"
+              ];
+              const cardHeight = heightClasses[index % heightClasses.length];
+
+              return (
                 <Link
-                  key={`${item.title}-${index}`}
+                  key={`${item.slug}-${index}`}
                   href={`/our-events/${item.slug}`}
-                  className="group block text-left text-jiffy-dark shrink-0 w-[76vw] max-w-[320px] snap-center"
+                  className={`group relative block w-full ${cardHeight} break-inside-avoid overflow-hidden rounded-[1.7rem] shadow-sm hover:shadow-2xl transition-all duration-500 mb-6 bg-stone-100`}
                 >
-                  <div className="relative overflow-hidden rounded-[1.7rem] aspect-[4/5] bg-stone-200">
+                  <div className="absolute inset-0">
                     {item.image ? (
                       <Image
                         src={item.image}
-                        alt={item.title}
+                        alt={item.title || ''}
                         fill
-                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                        className="object-cover transition-transform duration-1000 group-hover:scale-110"
                       />
                     ) : (
                       <div className="h-full w-full flex items-center justify-center px-6 text-center bg-gradient-to-br from-[#ece6de] to-[#dcd3c7]">
-                        <p className="font-serif italic text-lg text-jiffy-dark">Image Coming Soon</p>
+                        <p className="font-serif italic text-sm text-jiffy-dark">No Image</p>
                       </div>
                     )}
                   </div>
 
-                  <h3 className="mt-3 font-serif italic text-lg leading-tight">{item.title}</h3>
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-x-7 gap-y-10">
-            {filteredCategories.map((item, index) => (
-              <Link
-                key={`${item.title}-${index}`}
-                href={`/our-events/${item.slug}`}
-                className="group block text-left text-jiffy-dark"
-              >
-                <div className="relative overflow-hidden rounded-[1.7rem] aspect-[1/1] bg-stone-200">
-                  {item.image ? (
-                    <Image
-                      src={item.image}
-                      alt={item.title}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="h-full w-full flex items-center justify-center px-6 text-center bg-gradient-to-br from-[#ece6de] to-[#dcd3c7]">
-                      <p className="font-serif italic text-lg text-jiffy-dark">Image Coming Soon</p>
+                  {/* Hover Overlay - Pinterest style */}
+                  <div className="absolute inset-0 flex items-end md:items-center justify-center p-4 md:p-0 bg-gradient-to-t from-black/60 to-transparent md:bg-jiffy-dark/50 md:from-transparent md:opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 md:backdrop-blur-[2px]">
+                    <div className="md:transform md:translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out text-center w-full md:px-4">
+                      <p className="text-white font-bold tracking-[0.2em] uppercase text-base drop-shadow-lg">
+                        {item.category || "Portfolio"}
+                      </p>
                     </div>
-                  )}
-                </div>
-
-                <h3 className="mt-3 font-serif italic text-xl md:text-2xl leading-tight">{item.title}</h3>
-              </Link>
-            ))}
+                  </div>
+                </Link>
+              );
+            })}
           </div>
 
-          {filteredCategories.length === 0 && (
+          {filteredEvents.length === 0 && (
             <div className="mt-10 rounded-2xl border border-[#ddd5c9] bg-white p-8 text-center text-jiffy-dark/70">
-              No event types found.
+              No portfolio items found matching your search.
             </div>
           )}
 

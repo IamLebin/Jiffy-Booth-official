@@ -50,7 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const navLinks = siteSettings?.headerSection?.navigationLinks || [
     { name: "About Us", href: "/about-us" },
     { name: "Our Services", href: "/our-services" },
-    { name: "Our Events", href: "/our-events" },
+    { name: "Portfolio", href: "/our-events" },
     { name: "Advice", href: "/advice" },
     { name: "FAQ", href: "/faq" },
     { name: "Contact Us", href: "/contact-us" },
@@ -67,7 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="en" className={`${inter.variable} scroll-smooth`}>
-      <body className={`${inter.className} antialiased bg-jiffy-cream min-h-screen flex flex-col`}>
+      <body className={`${inter.className} antialiased bg-jiffy-cream min-h-screen flex flex-col overflow-x-hidden`}>
         {/* --- NAVIGATION BAR --- */}
         {!isStudio && (
           <header className="bg-[#f5ebe1] sticky top-0 z-[100] w-full">

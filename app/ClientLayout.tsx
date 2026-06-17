@@ -71,7 +71,7 @@ export default function ClientLayout({
   const navLinks: NavLink[] = (siteSettings?.headerSection?.navigationLinks as NavLink[]) || [
     { name: "About Us", href: "/about-us" },
     { name: "Our Services", href: "/our-services" },
-    { name: "Our Events", href: "/our-events" },
+    { name: "Portfolio", href: "/our-events" },
     { name: "Advice", href: "/advice" },
     { name: "FAQ", href: "/faq" },
     { name: "Contact Us", href: "/contact-us" },
@@ -94,7 +94,7 @@ export default function ClientLayout({
   };
 
   return (
-    <body className={`${interClassName} antialiased bg-jiffy-cream min-h-screen flex flex-col`}>
+    <body className={`${interClassName} antialiased bg-jiffy-cream min-h-screen flex flex-col overflow-x-hidden`}>
       {/* --- NAVIGATION BAR --- */}
       <header className="bg-[#f5ebe1] sticky top-0 z-[100] w-full">
         <div className="w-full px-6 md:px-8 lg:px-10 h-20 flex items-center justify-between gap-6">

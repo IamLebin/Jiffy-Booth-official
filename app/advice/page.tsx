@@ -1,109 +1,157 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import Link from "next/link";
+import { ArrowRight, BookOpen } from "lucide-react";
+import { MOCK_ARTICLES } from "../../mock-data";
 
-const featuredArticles = [
-  {
-    title: "How To Choose The Right Booth Setup For Your Guest Count",
-    tag: "How-To",
-    image:
-      "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1400&q=80",
-  },
-  {
-    title: "Don't Get Fooled: Event Vendor Red Flags To Watch Out For",
-    tag: "How-To",
-    image:
-      "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1400&q=80",
-  },
-  {
-    title: "7 Timeline Tips To Keep Your Booth Busy From Start To End",
-    tag: "Planning",
-    image:
-      "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?auto=format&fit=crop&w=1400&q=80",
-  },
-  {
-    title: "Print Template Design Rules For Better-Looking Photo Strips",
-    tag: "Design",
-    image:
-      "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=1400&q=80",
-  },
-];
-
-export default function AdvicePage() {
-  const [search, setSearch] = useState("");
-
-  const filteredArticles = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    if (!term) return featuredArticles;
-
-    return featuredArticles.filter((article) =>
-      article.title.toLowerCase().includes(term) ||
-      article.tag.toLowerCase().includes(term)
-    );
-  }, [search]);
+export default function AdviceListingPage() {
+  const featured = MOCK_ARTICLES[0];
+  const remaining = MOCK_ARTICLES.slice(1);
 
   return (
-    <main className="min-h-screen bg-[#f3f1ee] text-jiffy-dark font-inter">
-      <section className="bg-[#f3f1ee] py-10 md:py-14 px-6">
-        <div className="max-w-5xl mx-auto text-center">
-          <h1 className="font-inter font-semibold tracking-tight text-2xl md:text-4xl text-jiffy-dark">
-            Articles
+    <main className="min-h-screen bg-white text-jiffy-dark font-inter overflow-x-hidden">
+      {/* --- HERO SECTION --- */}
+      <section className="relative bg-[#f3f1ee] overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 py-20 md:py-28 text-center">
+          <span className="inline-flex items-center gap-2 text-[#9b5744] font-semibold tracking-widest uppercase text-xs mb-6">
+            <BookOpen size={16} />
+            Jiffy Booth Advice
+          </span>
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 leading-[1.1]">
+            Tips, Ideas &amp; Inspiration
           </h1>
-          <p className="mt-4 font-inter text-sm md:text-base text-jiffy-dark/80 max-w-3xl mx-auto leading-relaxed">
-            Get practical guidance, styling ideas, and planning tips to help you make the most of your event and photo booth experience.
+          <p className="text-lg md:text-xl text-jiffy-dark/60 max-w-2xl mx-auto leading-relaxed">
+            Everything you need to create unforgettable photo booth experiences
+            — from planning and design to making the most of every moment.
           </p>
-
-          <div className="max-w-xl mx-auto relative group mt-7">
-            <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-jiffy-dark/50 group-focus-within:text-[#9b5744] transition-colors">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.3-4.3" />
-              </svg>
-            </span>
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search article..."
-              className="w-full rounded-full border border-[#d8d8d8] bg-white py-3.5 pl-12 pr-6 text-base text-jiffy-dark outline-none transition-all focus:border-[#9b5744] focus:ring-4 focus:ring-[#9b5744]/10"
-            />
-          </div>
         </div>
+        {/* Decorative gradient fade */}
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white to-transparent" />
       </section>
 
-      <section className="max-w-[1440px] mx-auto px-6 sm:px-8 md:px-10 lg:px-12 pb-20 md:pb-24">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
-          {filteredArticles.map((article) => (
-            <article
-              key={article.title}
-              className="group rounded-[1.6rem] overflow-hidden border border-[#ddd6cd] bg-[#f3f1ee] hover:-translate-y-1 transition-all duration-300"
+      {/* --- FEATURED ARTICLE --- */}
+      <section className="max-w-7xl mx-auto px-6 -mt-12 mb-16 relative z-10">
+        <Link
+          href={`/advice/${featured.slug}`}
+          className="group block rounded-[2rem] overflow-hidden shadow-lg border border-gray-100 bg-white hover:shadow-xl transition-shadow duration-500"
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-2">
+            <div className="relative aspect-[16/10] lg:aspect-auto lg:min-h-[420px] overflow-hidden bg-stone-100">
+              <Image
+                src={featured.image}
+                alt={featured.title}
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-700"
+                priority
+              />
+            </div>
+            <div className="flex flex-col justify-center p-8 md:p-12 lg:p-16">
+              <span className="inline-block text-[#9b5744] font-semibold tracking-widest uppercase text-[11px] mb-4">
+                {featured.tag} — Featured
+              </span>
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight leading-[1.15] mb-5 group-hover:text-[#9b5744] transition-colors duration-300">
+                {featured.title}
+              </h2>
+              <p className="text-gray-500 leading-relaxed mb-6 line-clamp-3">
+                {featured.summary}
+              </p>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 bg-[#f3f1ee] rounded-full flex items-center justify-center font-bold text-[#9b5744] text-xs">
+                    JT
+                  </div>
+                  <div className="text-sm text-gray-400">
+                    {featured.author} · {featured.date} · {featured.readTime}
+                  </div>
+                </div>
+                <span className="hidden sm:inline-flex items-center gap-2 text-[#9b5744] font-bold text-xs uppercase tracking-widest">
+                  Read Article
+                  <ArrowRight
+                    size={14}
+                    className="group-hover:translate-x-1.5 transition-transform duration-300"
+                  />
+                </span>
+              </div>
+            </div>
+          </div>
+        </Link>
+      </section>
+
+      {/* --- ARTICLES GRID --- */}
+      <section className="max-w-7xl mx-auto px-6 pb-20">
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-10">
+          All Articles
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {remaining.map((article) => (
+            <Link
+              key={article.slug}
+              href={`/advice/${article.slug}`}
+              className="group flex flex-col rounded-[1.5rem] overflow-hidden border border-gray-100 bg-white hover:shadow-lg transition-all duration-500 hover:-translate-y-1"
             >
-              <div className="relative h-[240px] sm:h-[260px] md:h-[280px] lg:h-[260px]">
+              {/* Card Image */}
+              <div className="relative aspect-[16/10] w-full overflow-hidden bg-stone-100">
                 <Image
                   src={article.image}
                   alt={article.title}
                   fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                  className="object-cover"
+                  className="object-cover group-hover:scale-105 transition-transform duration-700"
                 />
-              </div>
-              <div className="p-4 md:p-5">
-                <p className="text-jiffy-dark/60 text-[11px] md:text-sm uppercase tracking-wide mb-2 font-semibold">
+                {/* Tag badge */}
+                <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm text-[#9b5744] font-semibold tracking-widest uppercase text-[10px] px-3 py-1.5 rounded-full">
                   {article.tag}
-                </p>
-                <h3 className="text-[1.05rem] md:text-[1.18rem] font-medium leading-snug">
+                </span>
+              </div>
+
+              {/* Card Body */}
+              <div className="flex flex-col flex-1 p-6">
+                <h3 className="text-lg font-bold tracking-tight leading-snug mb-3 group-hover:text-[#9b5744] transition-colors duration-300">
                   {article.title}
                 </h3>
-              </div>
-            </article>
-          ))}
+                <p className="text-sm text-gray-500 leading-relaxed mb-5 line-clamp-2 flex-1">
+                  {article.summary}
+                </p>
 
-          {filteredArticles.length === 0 && (
-            <div className="lg:col-span-4 rounded-[2rem] border border-gray-200 bg-white p-12 text-center text-gray-500 shadow-sm">
-              No matching articles found.
-            </div>
-          )}
+                {/* Card Footer */}
+                <div className="flex items-center justify-between pt-4 border-t border-gray-50">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 bg-[#f3f1ee] rounded-full flex items-center justify-center font-bold text-[#9b5744] text-[9px]">
+                      JT
+                    </div>
+                    <span className="text-xs text-gray-400">
+                      {article.date} · {article.readTime}
+                    </span>
+                  </div>
+                  <span className="inline-flex items-center gap-1.5 text-[#9b5744] font-bold text-[10px] uppercase tracking-widest">
+                    Read
+                    <ArrowRight
+                      size={12}
+                      className="group-hover:translate-x-1 transition-transform duration-300"
+                    />
+                  </span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* --- CTA SECTION --- */}
+      <section className="py-20 md:py-24 text-center px-6 bg-[#f3f1ee] border-t border-[#e8e3da]">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-3xl md:text-5xl font-bold mb-6 text-jiffy-dark tracking-tight">
+            Ready to Capture the Moment?
+          </h2>
+          <p className="text-jiffy-dark/70 mb-10 text-lg">
+            Let&apos;s craft the perfect photo booth experience for your
+            upcoming event.
+          </p>
+          <Link href="/contact-us">
+            <button className="inline-block bg-[#9b5744] text-white px-12 py-5 rounded-full font-bold uppercase tracking-widest shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all text-sm">
+              Enquire Now
+            </button>
+          </Link>
         </div>
       </section>
     </main>

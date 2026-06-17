@@ -556,27 +556,27 @@ function AddOnsSection({ section, isValidSrc }: { section: Section; isValidSrc: 
           {section.title || 'Optional Add-Ons'}
         </h2>
         {section.addOns && section.addOns.length > 0 && (
-          <div className="addons-scrollbar overflow-x-auto pb-5">
-            <div className="flex flex-nowrap gap-6 md:gap-8 min-w-max snap-x snap-mandatory">
-              {section.addOns.map((addon, idx) => (
-                <div
-                  key={idx}
-                  className="group shrink-0 w-[46vw] max-w-[320px] md:w-[300px] lg:w-[320px] snap-start"
-                >
-                  <div className="aspect-[4/5] rounded-3xl mb-5 overflow-hidden shadow-lg transition-all duration-500 group-hover:rounded-2xl transform group-hover:scale-[0.98] relative bg-white">
-                    {isValidSrc(addon.image) ? (
-                      <Image
-                        src={addon.image}
-                        alt={addon.title}
-                        fill
-                        className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center text-gray-200">
-                        <LucideIcons.Plus className="w-12 h-12" />
-                      </div>
-                    )}
-                  </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 md:gap-12">
+            {section.addOns.map((addon, idx) => (
+              <div
+                key={idx}
+                className="group flex flex-col items-center text-center"
+              >
+                <div className="w-full aspect-[4/3] rounded-[2rem] mb-6 overflow-hidden shadow-sm border border-gray-100 transition-all duration-500 relative bg-white">
+                  {isValidSrc(addon.image) ? (
+                    <Image
+                      src={addon.image}
+                      alt={addon.title}
+                      fill
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center text-gray-200">
+                      <LucideIcons.Plus className="w-12 h-12" />
+                    </div>
+                  )}
+                </div>
+                <div className="w-full px-2">
                   <h4 className="text-xl md:text-2xl font-semibold mb-3 text-slate-800 tracking-tight">
                     {addon.title}
                   </h4>
@@ -584,36 +584,10 @@ function AddOnsSection({ section, isValidSrc }: { section: Section; isValidSrc: 
                     {addon.description}
                   </p>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         )}
-
-        <style jsx>{`
-          .addons-scrollbar {
-            scrollbar-width: thin;
-            scrollbar-color: #1f2937 #e5e7eb;
-          }
-
-          .addons-scrollbar::-webkit-scrollbar {
-            height: 10px;
-          }
-
-          .addons-scrollbar::-webkit-scrollbar-track {
-            background: #e5e7eb;
-            border-radius: 999px;
-          }
-
-          .addons-scrollbar::-webkit-scrollbar-thumb {
-            background: #1f2937;
-            border-radius: 999px;
-            border: 2px solid #e5e7eb;
-          }
-
-          .addons-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #111827;
-          }
-        `}</style>
       </div>
     </section>
   );

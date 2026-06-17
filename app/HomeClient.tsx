@@ -179,7 +179,7 @@ export default function HomeClient({ pageData, servicesData, eventsData }: HomeC
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 xl:gap-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
               {servicesData.map((service: Service, index: number) => {
                 const slug = service?.slug || `service-${index + 1}`;
                 return (
@@ -192,10 +192,10 @@ export default function HomeClient({ pageData, servicesData, eventsData }: HomeC
                             alt={service.title || ''}
                             width={800}
                             height={1000}
-                            className="h-[320px] w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            className="h-[320px] md:h-[400px] lg:h-[450px] w-full object-cover transition-transform duration-700 group-hover:scale-105"
                           />
                         ) : (
-                          <div className="h-[320px] w-full bg-gradient-to-br from-[#f5ebe1] to-[#e7cfb4] flex items-center justify-center px-6 text-center border border-[#d9c0a3]">
+                          <div className="h-[320px] md:h-[400px] lg:h-[450px] w-full bg-gradient-to-br from-[#f5ebe1] to-[#e7cfb4] flex items-center justify-center px-6 text-center border border-[#d9c0a3]">
                             <div>
                               <p className="text-jiffy-dark font-bold text-lg md:text-xl tracking-tight">
                                 {service.title}
@@ -208,10 +208,10 @@ export default function HomeClient({ pageData, servicesData, eventsData }: HomeC
                         )}
                       </div>
                       <div className="px-1">
-                        <h3 className="font-inter italic text-xl md:text-2xl text-jiffy-dark mb-3">
+                        <h3 className="font-inter italic text-xl md:text-2xl lg:text-3xl text-jiffy-dark mb-3">
                           {service.title}
                         </h3>
-                        <p className="text-sm md:text-[15px] leading-relaxed text-jiffy-dark/85">
+                        <p className="text-sm md:text-base leading-relaxed text-jiffy-dark/85">
                           {service.description}
                         </p>
                         <div className="mt-5 inline-flex items-center gap-2 text-xs md:text-sm uppercase tracking-[0.2em] font-bold text-jiffy-dark">
@@ -232,37 +232,55 @@ export default function HomeClient({ pageData, servicesData, eventsData }: HomeC
       <section className="py-20 md:py-32 px-6 bg-white border-t border-[#ddd0be]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
-            <p className="text-jiffy-dark/70 uppercase tracking-[0.35em] text-xs md:text-sm mb-4">Our Events</p>
+            <p className="text-jiffy-dark/70 uppercase tracking-[0.35em] text-xs md:text-sm mb-4">Portfolio</p>
             <h2 className="font-inter font-bold text-jiffy-dark text-3xl md:text-5xl lg:text-6xl leading-tight">
               Moments Worth Capturing.
             </h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
-            {eventsData.slice(0, 3).map((item: EventItem) => (
+        <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6">
+          {eventsData.slice(0, 12).map((item: EventItem, index: number) => {
+            // Assign varying heights to create a true Pinterest-style masonry grid
+            const heightClasses = [
+              "h-[300px] md:h-[400px]",
+              "h-[400px] md:h-[550px]",
+              "h-[250px] md:h-[350px]",
+              "h-[450px] md:h-[600px]",
+              "h-[350px] md:h-[450px]"
+            ];
+            const cardHeight = heightClasses[index % heightClasses.length];
+
+            return (
               <Link
-                key={item.slug}
+                key={item.slug || index}
                 href={`/our-events/${item.slug}`}
-                className="group relative block h-[450px] md:h-[500px] overflow-hidden rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-500"
+                className={`group relative block w-full ${cardHeight} break-inside-avoid overflow-hidden rounded-[2rem] shadow-sm hover:shadow-2xl transition-all duration-500 mb-6 bg-stone-100`}
               >
-                <div className="absolute inset-0 bg-stone-200">
+                <div className="absolute inset-0">
                   {item.image && (
-                    <Image src={item.image} alt={item.title || ''} fill className="object-cover transition-transform duration-1000 group-hover:scale-105" />
+                    <Image 
+                      src={item.image} 
+                      alt={item.title || ''} 
+                      fill 
+                      className="object-cover transition-transform duration-1000 group-hover:scale-110" 
+                    />
                   )}
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-jiffy-dark/90 via-jiffy-dark/30 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-500" />
-                <div className="absolute inset-0 p-8 md:p-10 flex flex-col justify-end text-white z-10">
-                  <div className="transform translate-y-6 group-hover:translate-y-0 transition-transform duration-500 ease-out">
-                    <p className="text-[#e8dfd2] text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-75">{item.category}</p>
-                    <h3 className="text-2xl md:text-3xl font-bold tracking-tight mb-2">{item.title}</h3>
-                    <span className="inline-flex items-center gap-2 text-xs md:text-sm uppercase tracking-[0.2em] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-150">Explore <span className="text-orange-400">→</span></span>
+                
+                {/* Hover Overlay - Pinterest style */}
+                <div className="absolute inset-0 flex items-end md:items-center justify-center p-4 md:p-0 bg-gradient-to-t from-black/60 to-transparent md:bg-jiffy-dark/50 md:from-transparent md:opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 md:backdrop-blur-[2px]">
+                  <div className="md:transform md:translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out text-center w-full md:px-4">
+                    <p className="text-white font-bold tracking-[0.2em] uppercase text-base drop-shadow-lg">
+                      {item.category || "Portfolio"}
+                    </p>
                   </div>
                 </div>
               </Link>
-            ))}
-          </div>
+            );
+          })}
+        </div>
           <div className="mt-14 text-center">
             <Link href="/our-events" className="inline-flex items-center justify-center rounded-full bg-[#9b5744] px-10 py-4 text-sm font-bold uppercase tracking-widest text-white shadow-xl transition-all hover:scale-105 active:scale-95">
-              View All Events
+              View Full Portfolio
             </Link>
           </div>
         </div>
