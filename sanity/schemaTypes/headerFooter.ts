@@ -57,17 +57,6 @@ const headerFooter = {
           validation: (rule: Rule) => rule.required()
         },
         {
-          name: 'footerLinks',
-          title: 'Footer Our Services Links',
-          type: 'array',
-          of: [
-            {
-              type: 'reference',
-              to: [{ type: 'ourServices' }]
-            }
-          ]
-        },
-        {
           name: 'socialLinks',
           title: 'Social Media Links',
           type: 'object',

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { Maximize2, X } from "lucide-react";
 
 type EventListItem = {
   title: string;
@@ -12,10 +13,11 @@ type EventListItem = {
   slug: string;
 };
 
-function OurEventsPageContent() {
+function PortfolioPageContent() {
   const [eventSearch, setEventSearch] = useState("");
   const [events, setEvents] = useState<EventListItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchEvents() {
@@ -82,10 +84,8 @@ function OurEventsPageContent() {
             </div>
           </div>
 
-          {/* Masonry Layout Grid */}
           <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6">
             {filteredEvents.map((item, index) => {
-              // Assign varying heights to create a true Pinterest-style masonry grid
               const heightClasses = [
                 "h-[300px] md:h-[400px]",
                 "h-[400px] md:h-[550px]",
@@ -96,9 +96,8 @@ function OurEventsPageContent() {
               const cardHeight = heightClasses[index % heightClasses.length];
 
               return (
-                <Link
+                <div
                   key={`${item.slug}-${index}`}
-                  href={`/our-events/${item.slug}`}
                   className={`group relative block w-full ${cardHeight} break-inside-avoid overflow-hidden rounded-[1.7rem] shadow-sm hover:shadow-2xl transition-all duration-500 mb-6 bg-stone-100`}
                 >
                   <div className="absolute inset-0">
@@ -116,15 +115,25 @@ function OurEventsPageContent() {
                     )}
                   </div>
 
-                  {/* Hover Overlay - Pinterest style */}
-                  <div className="absolute inset-0 flex items-end md:items-center justify-center p-4 md:p-0 bg-gradient-to-t from-black/60 to-transparent md:bg-jiffy-dark/50 md:from-transparent md:opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 md:backdrop-blur-[2px]">
-                    <div className="md:transform md:translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out text-center w-full md:px-4">
-                      <p className="text-white font-bold tracking-[0.2em] uppercase text-base drop-shadow-lg">
+                  <div className="absolute inset-0 p-4 md:p-5 bg-gradient-to-t from-black/60 via-black/15 to-transparent md:opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10">
+                    <div className="absolute bottom-4 left-4 right-4 md:bottom-5 md:left-5 md:right-5 flex items-end justify-between gap-4">
+                      <p className="text-white font-bold tracking-[0.2em] uppercase text-base drop-shadow-lg text-left">
                         {item.category || "Portfolio"}
                       </p>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEnlargedImage(item.image || null);
+                        }}
+                        className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/20 text-white border border-white/30 flex-shrink-0 transition-transform duration-300 hover:scale-110"
+                        aria-label={`Enlarge ${item.title || "portfolio image"}`}
+                      >
+                        <Maximize2 className="w-5 h-5" />
+                      </button>
                     </div>
                   </div>
-                </Link>
+                </div>
               );
             })}
           </div>
@@ -134,9 +143,29 @@ function OurEventsPageContent() {
               No portfolio items found matching your search.
             </div>
           )}
-
         </div>
       </section>
+
+      {enlargedImage && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-jiffy-dark/90 backdrop-blur-sm p-4 md:p-8" onClick={() => setEnlargedImage(null)}>
+          <button
+            className="absolute top-6 right-6 text-white/80 hover:text-white p-2 transition-colors"
+            onClick={() => setEnlargedImage(null)}
+            aria-label="Close modal"
+          >
+            <X className="w-8 h-8" />
+          </button>
+          <div className="relative w-full max-w-5xl max-h-full flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+            <Image
+              src={enlargedImage}
+              alt="Enlarged portfolio view"
+              width={1600}
+              height={1600}
+              className="max-w-full max-h-[85vh] w-auto h-auto object-contain rounded-xl shadow-2xl"
+            />
+          </div>
+        </div>
+      )}
 
       <section className="py-24 text-center bg-white border-t border-gray-100 px-6">
         <h2 className="text-jiffy-dark font-inter font-bold tracking-tight text-3xl md:text-5xl mb-8">
@@ -152,11 +181,10 @@ function OurEventsPageContent() {
           Let&apos;s Talk
         </Link>
       </section>
-
     </main>
   );
 }
 
-export default function OurEventsPage() {
-  return <OurEventsPageContent />;
+export default function PortfolioPage() {
+  return <PortfolioPageContent />;
 }

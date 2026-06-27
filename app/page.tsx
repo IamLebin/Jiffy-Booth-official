@@ -255,16 +255,16 @@ export default function Home() {
 
       {/* --- SERVICE GRID SECTION --- */}
       {services.length > 0 && (
-        <section className="bg-[#e8dfd2] py-12 md:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 xl:px-10 scroll-mt-24">
-          <div className="max-w-[1240px] 2xl:max-w-[1680px] mx-auto">
-            <div className="text-center max-w-3xl mx-auto mb-8 md:mb-10 lg:mb-12">
+        <section className="bg-[#e8dfd2] py-8 md:py-10 px-6 sm:px-10 lg:px-16 xl:px-24 scroll-mt-24">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center max-w-2xl mx-auto mb-6 md:mb-8">
               <p className="text-jiffy-dark/70 uppercase tracking-[0.35em] text-xs md:text-sm mb-4">Our Services</p>
               <h2 className="section-title leading-tight">
                 A Booth for All Occasions
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8">
               {services.map((service: Service, index: number) => {
                 const slug = service?.slug || `service-${index + 1}`;
 
@@ -274,23 +274,23 @@ export default function Home() {
                     href={`/services/${slug}`}
                     className="group block text-jiffy-dark"
                   >
-                    <article className="space-y-4 h-full">
-                      <div className="overflow-hidden rounded-[2rem] transition-transform duration-500 group-hover:-translate-y-2">
+                    <article className="flex h-full flex-col space-y-3 md:space-y-4 rounded-[1.75rem] bg-white p-3 md:p-4 shadow-sm">
+                      <div className="overflow-hidden rounded-[1.25rem] bg-white transition-transform duration-500 group-hover:-translate-y-1">
                         {service.image ? (
                           <Image
                             src={service.image}
                             alt={service.title || ''}
                             width={800}
                             height={1000}
-                            className="h-[320px] md:h-[400px] lg:h-[450px] w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            className="h-[220px] md:h-[240px] lg:h-[260px] w-full object-cover transition-transform duration-700 group-hover:scale-105"
                           />
                         ) : (
-                          <div className="h-[320px] md:h-[400px] lg:h-[450px] w-full bg-gradient-to-br from-[#f5ebe1] to-[#e7cfb4] flex items-center justify-center px-6 text-center border border-[#d9c0a3]">
+                          <div className="h-[220px] md:h-[240px] lg:h-[260px] w-full bg-gradient-to-br from-[#f5ebe1] to-[#e7cfb4] flex items-center justify-center px-6 text-center border border-[#d9c0a3]">
                             <div>
-                              <p className="text-jiffy-dark font-bold text-lg md:text-xl tracking-tight">
+                              <p className="text-jiffy-dark font-bold text-base md:text-lg tracking-tight">
                                 {service.title}
                               </p>
-                              <p className="text-jiffy-dark/70 text-sm mt-2 uppercase tracking-[0.15em]">
+                              <p className="text-jiffy-dark/70 text-xs md:text-sm mt-2 uppercase tracking-[0.15em]">
                                 Image Coming Soon
                               </p>
                             </div>
@@ -298,14 +298,14 @@ export default function Home() {
                         )}
                       </div>
 
-                      <div className="px-1">
-                        <h3 className="font-inter text-xl md:text-2xl lg:text-3xl text-jiffy-dark mb-2">
+                      <div className="px-1 pb-1">
+                        <h3 className="font-inter text-lg md:text-xl lg:text-2xl text-jiffy-dark mb-1">
                           {service.title}
                         </h3>
-                        <p className="text-sm md:text-base leading-relaxed text-jiffy-dark/85">
+                        <p className="text-xs md:text-sm lg:text-[15px] leading-snug text-jiffy-dark/85">
                           {service.description}
                         </p>
-                        <div className="mt-4 inline-flex items-center gap-2 text-xs md:text-sm uppercase tracking-[0.2em] font-bold text-jiffy-dark">
+                        <div className="mt-3 inline-flex items-center gap-2 text-[11px] md:text-xs uppercase tracking-[0.2em] font-bold text-jiffy-dark">
                           Learn More
                           <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
                         </div>
@@ -373,12 +373,12 @@ export default function Home() {
                 )}
                 
                 {/* Hover Overlay */}
-                <div className="absolute inset-0 flex items-end md:items-center justify-center p-4 md:p-0 bg-gradient-to-t from-black/60 to-transparent md:bg-jiffy-dark/40 md:from-transparent md:opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 md:backdrop-blur-sm">
-                  <div className="text-center w-full md:transform md:translate-y-4 group-hover:translate-y-0 transition-all duration-300 md:px-4">
+                <div className="absolute inset-0 p-4 md:p-5 bg-gradient-to-t from-black/60 via-black/15 to-transparent md:opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                  <div className="absolute bottom-4 left-4 right-4 md:bottom-5 md:left-5 md:right-5 flex items-end justify-between gap-4">
                     <p className="text-white font-bold tracking-widest uppercase text-sm md:text-base drop-shadow-md">
                       {item?.category || item?.title}
                     </p>
-                    <div className="mt-2 md:mt-4 md:opacity-0 group-hover:opacity-100 transition-opacity duration-300 inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/30">
+                    <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/20 text-white border border-white/30 flex-shrink-0">
                       <Maximize2 className="w-5 h-5" />
                     </div>
                   </div>
@@ -395,7 +395,7 @@ export default function Home() {
 
           <div className="mt-10 text-center">
             <Link 
-              href="/our-events" 
+              href="/portfolio" 
               className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-[#9b5744] hover:text-jiffy-dark transition-colors"
             >
               View Full Portfolio <span className="text-lg">→</span>

@@ -25,7 +25,6 @@ type SiteSettings = {
       tiktok?: string;
       xiaohongshu?: string;
     };
-    footerLinks?: NavLink[];
   };
   whatsappSettings?: {
     whatsappNumber?: string;
@@ -48,13 +47,39 @@ export default function ClientLayout({
   const isStudio = pathname.startsWith("/studio");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showWhatsAppMessage, setShowWhatsAppMessage] = useState(false);
+  const [footerServiceLinks, setFooterServiceLinks] = useState<NavLink[]>([]);
 
   // Show WhatsApp message after 2 seconds
   useEffect(() => {
+    let mounted = true;
+
     const timer = setTimeout(() => {
       setShowWhatsAppMessage(true);
     }, 2000);
-    return () => clearTimeout(timer);
+
+    async function fetchFooterServices() {
+      try {
+        const services = await fetch('/api/home-data', { cache: 'no-store' }).then((response) => response.json());
+        const links = (services?.services || [])
+          .filter((service: { title?: string; slug?: string }) => Boolean(service?.title && service?.slug))
+          .map((service: { title: string; slug: string }) => ({ name: service.title, href: `/services/${service.slug}` }));
+
+        if (mounted) {
+          setFooterServiceLinks(links);
+        }
+      } catch {
+        if (mounted) {
+          setFooterServiceLinks([]);
+        }
+      }
+    }
+
+    fetchFooterServices();
+
+    return () => {
+      mounted = false;
+      clearTimeout(timer);
+    };
   }, []);
 
   if (isStudio) {
@@ -71,7 +96,7 @@ export default function ClientLayout({
   const navLinks: NavLink[] = (siteSettings?.headerSection?.navigationLinks as NavLink[]) || [
     { name: "About Us", href: "/about-us" },
     { name: "Our Services", href: "/our-services" },
-    { name: "Portfolio", href: "/our-events" },
+    { name: "Portfolio", href: "/portfolio" },
     { name: "Advice", href: "/advice" },
     { name: "FAQ", href: "/faq" },
     { name: "Contact Us", href: "/contact-us" },
@@ -92,7 +117,6 @@ export default function ClientLayout({
     tiktok: "https://www.tiktok.com/@jiffybooth",
     xiaohongshu: "https://www.xiaohongshu.com/user/profile/5fcc526b00000000010031a0"
   };
-
   return (
     <body className={`${interClassName} antialiased bg-jiffy-cream min-h-screen flex flex-col overflow-x-hidden`}>
       {/* --- NAVIGATION BAR --- */}
@@ -242,8 +266,8 @@ export default function ClientLayout({
                 <div>
                     <h3 className="font-bold mb-6 text-gray-200 uppercase text-xs tracking-widest">Our Services</h3>
                     <ul className="space-y-4 text-gray-400 text-sm">
-                        {siteSettings?.footerSection?.footerLinks && siteSettings.footerSection.footerLinks.length > 0 ? (
-                          siteSettings.footerSection.footerLinks.map((link: NavLink) => (
+                        {footerServiceLinks.length > 0 ? (
+                          footerServiceLinks.map((link) => (
                       <li key={link.href}>
                           <Link href={link.href} className="hover:text-white transition-colors">
                           {link.name}

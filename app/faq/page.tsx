@@ -31,7 +31,7 @@ export default function FAQPage() {
     <main className="min-h-screen flex flex-col bg-[#f3f1ee] text-[#212121] overflow-x-hidden">
       <section className="max-w-7xl w-full mx-auto px-6 md:px-10 lg:px-12 pt-20 md:pt-24 pb-4 md:pb-6">
         <div className="text-center max-w-4xl mx-auto">
-          <h1 className="font-inter font-semibold tracking-tight text-2xl md:text-4xl text-[#212121]">
+          <h1 className="section-title mb-4">
             {data?.title || "Event Types"}
           </h1>
         </div>

@@ -252,7 +252,7 @@ export default function HomeClient({ pageData, servicesData, eventsData }: HomeC
             return (
               <Link
                 key={item.slug || index}
-                href={`/our-events/${item.slug}`}
+                href="/portfolio"
                 className={`group relative block w-full ${cardHeight} break-inside-avoid overflow-hidden rounded-[2rem] shadow-sm hover:shadow-2xl transition-all duration-500 mb-6 bg-stone-100`}
               >
                 <div className="absolute inset-0">
@@ -279,7 +279,7 @@ export default function HomeClient({ pageData, servicesData, eventsData }: HomeC
           })}
         </div>
           <div className="mt-14 text-center">
-            <Link href="/our-events" className="inline-flex items-center justify-center rounded-full bg-[#9b5744] px-10 py-4 text-sm font-bold uppercase tracking-widest text-white shadow-xl transition-all hover:scale-105 active:scale-95">
+            <Link href="/portfolio" className="inline-flex items-center justify-center rounded-full bg-[#9b5744] px-10 py-4 text-sm font-bold uppercase tracking-widest text-white shadow-xl transition-all hover:scale-105 active:scale-95">
               View Full Portfolio
             </Link>
           </div>

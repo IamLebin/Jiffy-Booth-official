@@ -18,7 +18,7 @@ export default function AdviceListingPage() {
             <BookOpen size={16} />
             Jiffy Booth Advice
           </span>
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 leading-[1.1]">
+          <h1 className="section-title mb-6">
             Tips, Ideas &amp; Inspiration
           </h1>
           <p className="text-lg md:text-xl text-jiffy-dark/60 max-w-2xl mx-auto leading-relaxed">
@@ -80,7 +80,7 @@ export default function AdviceListingPage() {
 
       {/* --- ARTICLES GRID --- */}
       <section className="max-w-7xl mx-auto px-6 pb-20">
-        <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-10">
+        <h2 className="section-title mb-10">
           All Articles
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
