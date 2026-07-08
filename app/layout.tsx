@@ -6,14 +6,22 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import "./globals.css";
-import { client } from "@/sanity/lib/client";
 import EnquiryForm from "@/components/EnquiryForm";
 
 const inter = Inter({ subsets: ["latin"], display: "swap", variable: "--font-inter" });
 
 type SiteSettings = {
   headerSection?: { logo?: string; navigationLinks?: { name: string; href: string }[] };
-  footerSection?: { companyName?: string; tagline?: string; socialLinks?: any; copyrightText?: string };
+  footerSection?: {
+    companyName?: string;
+    tagline?: string;
+    socialLinks?: {
+      instagram?: string;
+      tiktok?: string;
+      xiaohongshu?: string;
+    };
+    copyrightText?: string;
+  };
   whatsappSettings?: { whatsappNumber?: string; defaultMessage?: string; floatingMessage?: string };
 };
 
@@ -31,10 +39,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     let mounted = true;
     async function fetchSettings() {
       try {
-        const [settings, services] = await Promise.all([
-          client.fetch(`*[_type == "headerFooter"][0] { headerSection{ "logo": logo.asset->url, navigationLinks }, footerSection{ companyName, tagline, socialLinks, copyrightText }, whatsappSettings{ whatsappNumber, defaultMessage, floatingMessage } }`),
-          client.fetch(`*[_type == "ourServices"] | order(order asc) { "name": title, "href": "/services/" + slug.current }`),
-        ]);
+        const response = await fetch("/api/site-settings", { cache: "no-store" });
+
+        if (!response.ok) {
+          throw new Error("Failed to load site settings");
+        }
+
+        const { settings, services } = await response.json();
 
         if (mounted) {
           setSiteSettings(settings);

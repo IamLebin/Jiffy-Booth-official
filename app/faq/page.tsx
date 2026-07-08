@@ -1,18 +1,37 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { client } from "@/sanity/lib/client";
 
 export default function FAQPage() {
   interface FaqItem { question: string; answer: string }
   const [data, setData] = useState<{ faqs?: FaqItem[]; title?: string; subtitle?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const fallbackFaqs: FaqItem[] = [
+    {
+      question: "How do I book Jiffy Booth?",
+      answer: "Send us your event date, venue, and preferred booth package. Our team will confirm availability and guide you through the booking details.",
+    },
+    {
+      question: "Can the booth be customised for my event?",
+      answer: "Yes. We can customise the photo layout, branding, backdrop, props, and other visual details depending on your selected package.",
+    },
+    {
+      question: "Do you provide attendants during the event?",
+      answer: "Yes. Our events are supported by onsite attendants who help with setup, guest guidance, and smooth booth operation.",
+    },
+  ];
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const result = await client.fetch(`*[_type == "faqPage"][0]`);
+        const response = await fetch("/api/page-content?page=faq", { cache: "no-store" });
+
+        if (!response.ok) {
+          throw new Error("Failed to load FAQ page content");
+        }
+
+        const result = await response.json();
         setData(result);
       } catch (err) {
         console.error(err);
@@ -23,7 +42,7 @@ export default function FAQPage() {
     fetchData();
   }, []);
 
-  const faqs = data?.faqs || [];
+  const faqs = data?.faqs && data.faqs.length > 0 ? data.faqs : fallbackFaqs;
 
   if (loading) return <div className="min-h-screen bg-[#f3f1ee]" />;
 
@@ -32,14 +51,14 @@ export default function FAQPage() {
       <section className="max-w-7xl w-full mx-auto px-6 md:px-10 lg:px-12 pt-20 md:pt-24 pb-4 md:pb-6">
         <div className="text-center max-w-4xl mx-auto">
           <h1 className="section-title mb-4">
-            {data?.title || "Event Types"}
+            {data?.title || "FAQ"}
           </h1>
         </div>
       </section>
 
       <section className="max-w-7xl w-full mx-auto px-6 md:px-10 lg:px-12 pb-16 md:pb-20">
         <p className="text-center text-sm md:text-base text-[#6f685a] max-w-3xl mx-auto mb-10 md:mb-12">
-          {data?.subtitle || "From weddings to corporate events, our booths add a touch of fun and create lasting memories for every occasion."}
+          {data?.subtitle || "Everything you need to know about booking Jiffy Booth."}
         </p>
 
         <div className="max-w-6xl mx-auto text-left">
@@ -89,11 +108,6 @@ export default function FAQPage() {
           </div>
         </div>
 
-        {faqs.length === 0 && (
-          <div className="text-center py-16 text-[#6f685a]">
-            No FAQs yet. Add questions in Sanity to show them here.
-          </div>
-        )}
       </section>
 
       <section className="mt-auto py-16 md:py-20 text-center px-6 border-t border-[#e3dbd0] bg-[#f3f1ee]">

@@ -1,12 +1,13 @@
 "use client";
 
-import { client } from "@/sanity/lib/client";
 import { useEffect, useRef, useState } from "react";
 import EnquiryForm from "@/components/EnquiryForm";
 
 type BookingStep = { title?: string; description?: string };
 
 type ContactPageData = {
+  title?: string;
+  heroBio?: string;
   whatsappNumber?: string;
   instagramUser?: string;
   emailAddress?: string;
@@ -19,11 +20,31 @@ export default function ContactPage() {
   const [loading, setLoading] = useState(true);
   const formSectionRef = useRef<HTMLDivElement | null>(null);
   const whatsappDefaultMessage = "Hi Jiffy Booth, I would like to enquire about...";
+  const fallbackBookingSteps: BookingStep[] = [
+    {
+      title: "Send Event Details",
+      description: "Share your event date, venue, guest count, and preferred booth style.",
+    },
+    {
+      title: "Confirm Package",
+      description: "We will recommend the best setup and confirm availability for your date.",
+    },
+    {
+      title: "Enjoy The Booth",
+      description: "Our team handles setup and onsite support so your guests can enjoy the experience.",
+    },
+  ];
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const result = await client.fetch(`*[_type == "contactPage"][0]`);
+        const response = await fetch("/api/page-content?page=contact-us", { cache: "no-store" });
+
+        if (!response.ok) {
+          throw new Error("Failed to load contact page content");
+        }
+
+        const result = await response.json();
         setData(result);
       } catch (err) {
         console.error("Sanity fetch error:", err);
@@ -52,6 +73,7 @@ export default function ContactPage() {
       block: 'center',
     });
   };
+  const bookingSteps = data?.bookingSteps && data.bookingSteps.length > 0 ? data.bookingSteps : fallbackBookingSteps;
 
   if (loading) return <div className="min-h-screen bg-[#f3f1ee]" />;
 
@@ -60,8 +82,11 @@ export default function ContactPage() {
       <section className="max-w-7xl w-full mx-auto px-6 md:px-10 lg:px-12 pt-20 md:pt-24 pb-4 md:pb-6">
         <div className="text-center max-w-4xl mx-auto">
           <h1 className="section-title mb-4">
-            {data?.title || "Event Types"}
+            {data?.title || "Contact Us"}
           </h1>
+          <p className="text-sm md:text-base text-[#6f685a] max-w-3xl mx-auto">
+            {data?.heroBio || "Tell us about your event and our team will help you plan the right photo booth experience."}
+          </p>
         </div>
       </section>
 
@@ -154,7 +179,7 @@ export default function ContactPage() {
             <div className="relative">
               <div className="absolute left-[20px] top-2 bottom-2 w-[3px] bg-[#d2b48c] z-0"></div>
 
-              {(data?.bookingSteps || []).map((step: BookingStep, index: number) => (
+              {bookingSteps.map((step: BookingStep, index: number) => (
                 <div key={index} className="relative flex items-start gap-6 z-10 pb-8 last:pb-0 group">
                   <div className="flex-shrink-0 w-10 h-10 bg-[#8b4513] rounded-full flex items-center justify-center text-white text-sm font-bold border-2 border-white shadow-md group-hover:scale-110 transition-transform">
                     {index + 1 < 10 ? `0${index + 1}` : index + 1}

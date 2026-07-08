@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { client } from "@/sanity/lib/client";
 import { urlFor } from "@/sanity/lib/image";
 import Image from "next/image";
 
@@ -22,7 +21,13 @@ export default function AboutPage() {
   useEffect(() => {
     async function fetchTeam() {
       try {
-        const data = await client.fetch(`*[_type == "aboutUs"][0]`, {}, { cache: 'no-store' });
+        const response = await fetch("/api/page-content?page=about-us", { cache: "no-store" });
+
+        if (!response.ok) {
+          throw new Error("Failed to load about page content");
+        }
+
+        const data = await response.json();
         setSanityTeam(data);
       } catch (error) {
         console.error("Error fetching Sanity data:", error);
@@ -34,10 +39,11 @@ export default function AboutPage() {
   }, []);
 
   const defaultStrip = "/template2.png";
-  const defaultTeamPhoto = "/Hero.png";
+  const defaultTeamPhoto = "/hero.png";
 
   if (loading) return <div className="min-h-screen bg-white" />;
-  if (!sanityTeam) return <div className="min-h-screen bg-white" />;
+
+  const about = sanityTeam || {};
 
   return (
     <main className="min-h-screen bg-white font-inter overflow-x-hidden">
@@ -51,7 +57,7 @@ export default function AboutPage() {
             <div className="absolute z-10 transform -rotate-[15deg] -translate-x-[10%] translate-y-2 shadow-2xl">
               <div className="w-[88px]">
                 <Image
-                  src={sanityTeam.photoStrip1 ? urlFor(sanityTeam.photoStrip1).url() : defaultStrip}
+                  src={about.photoStrip1 ? urlFor(about.photoStrip1).url() : defaultStrip}
                   alt="Memory Strip 1"
                   width={170}
                   height={425}
@@ -62,7 +68,7 @@ export default function AboutPage() {
             <div className="absolute z-20 transform -rotate-[3deg] translate-x-[6%] -translate-y-1 shadow-2xl">
               <div className="w-[88px]">
                 <Image
-                  src={sanityTeam.photoStrip2 ? urlFor(sanityTeam.photoStrip2).url() : defaultStrip}
+                  src={about.photoStrip2 ? urlFor(about.photoStrip2).url() : defaultStrip}
                   alt="Memory Strip 2"
                   width={150}
                   height={375}
@@ -73,7 +79,7 @@ export default function AboutPage() {
             <div className="absolute z-30 transform rotate-[12deg] translate-x-[32%] translate-y-4 shadow-2xl">
               <div className="w-[88px]">
                 <Image
-                  src={sanityTeam.photoStrip3 ? urlFor(sanityTeam.photoStrip3).url() : defaultStrip}
+                  src={about.photoStrip3 ? urlFor(about.photoStrip3).url() : defaultStrip}
                   alt="Memory Strip 3"
                   width={130}
                   height={325}
@@ -84,10 +90,10 @@ export default function AboutPage() {
           </div>
 
           <h2 className="max-w-[11rem] text-[#1c2431] font-bold leading-[0.93] tracking-tighter text-[clamp(2.4rem,9vw,3.6rem)] pr-0">
-            {sanityTeam.pageTitle || "The Team Behind Your Favorite Memories"}
+            {about.pageTitle || "The Team Behind Your Favorite Memories"}
           </h2>
           <p className="mt-3 max-w-[15rem] pr-0 text-gray-500 leading-relaxed text-sm">
-            {sanityTeam.description || "We believe that capturing the little moments are the most important part of any event."}
+            {about.description || "We believe that capturing the little moments are the most important part of any event."}
           </p>
         </div>
 
@@ -97,10 +103,10 @@ export default function AboutPage() {
           {/* Left: Title + Description — fixed width to match strip cluster */}
           <div className="flex flex-col gap-8 w-[420px] lg:w-[500px]">
             <h2 className="text-[#1c2431] font-bold leading-[0.9] tracking-tighter text-[clamp(48px,6vw,96px)]">
-              {sanityTeam.pageTitle || "The Team Behind Your Favorite Memories"}
+              {about.pageTitle || "The Team Behind Your Favorite Memories"}
             </h2>
             <p className="text-gray-500 leading-relaxed text-base md:text-lg lg:text-[clamp(16px,1.2vw,20px)]">
-              {sanityTeam.description || "We believe that capturing the little moments are the most important part of any event."}
+              {about.description || "We believe that capturing the little moments are the most important part of any event."}
             </p>
           </div>
 
@@ -112,7 +118,7 @@ export default function AboutPage() {
                 <div className="absolute z-10 transform -rotate-[15deg] left-0 top-2 shadow-2xl transition-all hover:scale-105 duration-500 hover:z-50">
                   <div className="w-[100px] md:w-[110px] lg:w-[130px]">
                     <Image
-                      src={sanityTeam.photoStrip1 ? urlFor(sanityTeam.photoStrip1).url() : defaultStrip}
+                      src={about.photoStrip1 ? urlFor(about.photoStrip1).url() : defaultStrip}
                       alt="Memory Strip 1"
                       width={170}
                       height={425}
@@ -124,7 +130,7 @@ export default function AboutPage() {
                 <div className="absolute z-20 transform -rotate-[3deg] left-[50%] -translate-x-1/2 -top-4 shadow-2xl transition-all hover:scale-110 duration-500 hover:z-50">
                   <div className="w-[115px] md:w-[125px] lg:w-[150px]">
                     <Image
-                      src={sanityTeam.photoStrip2 ? urlFor(sanityTeam.photoStrip2).url() : defaultStrip}
+                      src={about.photoStrip2 ? urlFor(about.photoStrip2).url() : defaultStrip}
                       alt="Memory Strip 2"
                       width={150}
                       height={375}
@@ -136,7 +142,7 @@ export default function AboutPage() {
                 <div className="absolute z-30 transform rotate-[12deg] right-0 top-3 shadow-2xl transition-all hover:scale-105 duration-500 hover:z-50">
                   <div className="w-[100px] md:w-[110px] lg:w-[130px]">
                     <Image
-                      src={sanityTeam.photoStrip3 ? urlFor(sanityTeam.photoStrip3).url() : defaultStrip}
+                      src={about.photoStrip3 ? urlFor(about.photoStrip3).url() : defaultStrip}
                       alt="Memory Strip 3"
                       width={130}
                       height={325}
@@ -157,10 +163,10 @@ export default function AboutPage() {
           <div className="text-center space-y-2">
             <div className="space-y-4 text-left text-black text-[17px] md:text-lg leading-[1.7]">
               <p>
-                {sanityTeam.description || "We believe that capturing the little moments are the most important part of any event."}
+                {about.description || "We believe that capturing the little moments are the most important part of any event."}
               </p>
               <p>
-                {sanityTeam.teamBio || "All our events will be accompanied by two professional onsite attendants."}
+                {about.teamBio || "All our events will be accompanied by two professional onsite attendants."}
               </p>
               <p>
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
@@ -169,7 +175,7 @@ export default function AboutPage() {
 
             <div className="overflow-hidden rounded-[2rem] py-6 md:py-10">
               <Image
-                src={sanityTeam.teamPhoto ? urlFor(sanityTeam.teamPhoto).url() : defaultTeamPhoto}
+                src={about.teamPhoto ? urlFor(about.teamPhoto).url() : defaultTeamPhoto}
                 alt="Jiffy Team"
                 width={1200}
                 height={800}

@@ -79,7 +79,6 @@ export default function ServicePageClient({ pageData }: ServicePageClientProps) 
     title,
     heroTitle,
     heroSubtitle,
-    heroBackgroundImage,
     featuredMedia,
     features,
     sections,

@@ -12,17 +12,8 @@ import "@glidejs/glide/dist/css/glide.core.min.css";
 type Brand = { name?: string; logo?: string };
 type Service = { title?: string; description?: string; slug?: string; image?: string };
 type EventItem = { title?: string; category?: string; description?: string; slug?: string; image?: string };
-type EventCategory = { title: string; slug: string; image?: string; description?: string; count: number };
 type TemplateItem = { designImage?: string; title?: string };
 type Testimonial = { rating?: number; text?: string; name?: string };
-
-const toEventTypeSlug = (value: string) =>
-  value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
 
 type MainPage = {
   heroBackgroundType?: string;
@@ -145,36 +136,9 @@ export default function Home() {
     };
   }, [pageData?.testimonials?.length]);
 
-  // Keep teammate's backend logic: group events into categories
   const page = pageData || fallbackPageData;
   const brands: Brand[] = page.brands && page.brands.length > 0 ? page.brands : [];
   const services: Service[] = servicesData && servicesData.length > 0 ? servicesData : [];
-
-  const eventCategories = useMemo<EventCategory[]>(() => {
-    const grouped = new Map<string, EventCategory>();
-
-    eventsData.forEach((item) => {
-      const category = (item?.category || '').trim();
-      if (!category) return;
-
-      const existing = grouped.get(category);
-      if (existing) {
-        existing.count += 1;
-        if (!existing.image && item?.image) existing.image = item.image;
-        return;
-      }
-
-      grouped.set(category, {
-        title: category,
-        slug: toEventTypeSlug(category),
-        image: item?.image,
-        description: item?.description,
-        count: 1,
-      });
-    });
-
-    return Array.from(grouped.values());
-  }, [eventsData]);
 
   const filteredEvents = useMemo(() => {
     const term = eventSearch.trim().toLowerCase();
@@ -226,7 +190,7 @@ export default function Home() {
           <div className="flex flex-col items-center text-center order-1 md:order-2">
             <div className="flex -mb-2 justify-center w-full">
               <Image 
-                  src={page.heroLogo ? urlFor(page.heroLogo).url() : "/jiffy-logo.png"} 
+                  src={page.heroLogo ? urlFor(page.heroLogo).url() : "/logo.png"} 
                 alt="Jiffy Logo"
                 width={300}
                 height={150}

@@ -113,7 +113,7 @@ export default function AdviceArticlePage() {
             {/* Sharing Icons */}
             <div className="flex items-center gap-3">
               <button
-                onClick={handleCopy}
+                onClick={() => handleCopy()}
                 className="hidden md:flex w-10 h-10 rounded-full bg-[#f3f1ee] items-center justify-center hover:bg-[#e8dfd2] transition-colors text-jiffy-dark"
                 aria-label="Copy Link"
                 title="Copy Link"
