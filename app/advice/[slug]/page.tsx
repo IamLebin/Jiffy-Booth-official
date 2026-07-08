@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   Link2,
-  MessageCircle,
+  Share2,
   ArrowLeft,
   Check,
   ArrowRight,
@@ -44,21 +44,36 @@ export default function AdviceArticlePage() {
     (a) => a.slug !== article.slug
   ).slice(0, 2);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(window.location.href);
+  const handleCopy = async (url = window.location.href) => {
+    await navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleWhatsAppShare = () => {
-    const url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent(
-      `Check out this helpful article: ${article.title}`
-    );
-    window.open(
-      `https://api.whatsapp.com/send?text=${text}%20${url}`,
-      "_blank"
-    );
+  const handleShare = async () => {
+    const url = window.location.href;
+    const shareData = {
+      title: article.title,
+      text: `Check out this helpful article: ${article.title}`,
+      url,
+    };
+
+    const canUseNativeShare =
+      typeof navigator.share === "function" &&
+      (!navigator.canShare || navigator.canShare(shareData));
+
+    if (canUseNativeShare) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          return;
+        }
+      }
+    }
+
+    await handleCopy(url);
   };
 
   return (
@@ -99,7 +114,7 @@ export default function AdviceArticlePage() {
             <div className="flex items-center gap-3">
               <button
                 onClick={handleCopy}
-                className="w-10 h-10 rounded-full bg-[#f3f1ee] flex items-center justify-center hover:bg-[#e8dfd2] transition-colors text-jiffy-dark"
+                className="hidden md:flex w-10 h-10 rounded-full bg-[#f3f1ee] items-center justify-center hover:bg-[#e8dfd2] transition-colors text-jiffy-dark"
                 aria-label="Copy Link"
                 title="Copy Link"
               >
@@ -110,16 +125,12 @@ export default function AdviceArticlePage() {
                 )}
               </button>
               <button
-                onClick={handleWhatsAppShare}
-                className="w-10 h-10 rounded-full bg-[#25D366] flex items-center justify-center hover:bg-[#1ebe57] transition-colors text-white"
-                aria-label="Share on WhatsApp"
-                title="Share on WhatsApp"
+                onClick={handleShare}
+                className="w-10 h-10 rounded-full bg-[#25D366] flex items-center justify-center hover:bg-[#1ebe57] transition-colors text-white md:hidden"
+                aria-label={copied ? "Link copied" : "Share article"}
+                title={copied ? "Link copied" : "Share article"}
               >
-                <MessageCircle
-                  size={18}
-                  fill="currentColor"
-                  className="text-[#25D366]"
-                />
+                {copied ? <Check size={18} /> : <Share2 size={18} />}
               </button>
             </div>
           </div>
