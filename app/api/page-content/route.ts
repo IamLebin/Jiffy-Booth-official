@@ -1,16 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { client } from "@/sanity/lib/client";
+import { getPageContent, type PageKey } from "@/sanity/lib/data";
 
-const pageQueries = {
-  "about-us": `*[_type == "aboutUs"][0]`,
-  faq: `*[_type == "faqPage"][0]`,
-  "contact-us": `*[_type == "contactPage"][0]`,
-} as const;
-
-type PageKey = keyof typeof pageQueries;
+const pageKeys: PageKey[] = ["about-us", "faq", "contact-us"];
 
 const isPageKey = (page: string | null): page is PageKey =>
-  page !== null && page in pageQueries;
+  page !== null && pageKeys.includes(page as PageKey);
 
 export async function GET(request: NextRequest) {
   const page = request.nextUrl.searchParams.get("page");
@@ -20,7 +14,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const data = await client.fetch(pageQueries[page], {}, { cache: "no-store" });
+    const data = await getPageContent(page);
     return NextResponse.json(data ?? null);
   } catch (error) {
     console.error(`Error loading ${page} content:`, error);

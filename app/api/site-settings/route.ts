@@ -1,27 +1,9 @@
 import { NextResponse } from "next/server";
-import { client } from "@/sanity/lib/client";
+import { getSiteChromeData } from "@/sanity/lib/data";
 
 export async function GET() {
   try {
-    const [settings, services] = await Promise.all([
-      client.fetch(
-        `*[_type == "headerFooter"][0] {
-          headerSection{ "logo": logo.asset->url, navigationLinks },
-          footerSection{ companyName, tagline, socialLinks, copyrightText },
-          whatsappSettings{ whatsappNumber, defaultMessage, floatingMessage }
-        }`,
-        {},
-        { cache: "no-store" }
-      ),
-      client.fetch(
-        `*[_type == "ourServices"] | order(order asc) {
-          "name": title,
-          "href": "/services/" + slug.current
-        }`,
-        {},
-        { cache: "no-store" }
-      ),
-    ]);
+    const { settings, services } = await getSiteChromeData();
 
     return NextResponse.json({
       settings: settings ?? null,

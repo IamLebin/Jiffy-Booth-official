@@ -1,15 +1,24 @@
 import type { Rule } from 'sanity'
+import {CogIcon} from '@sanity/icons'
 
 const headerFooter = {
   name: 'headerFooter',
   title: 'Header & Footer Settings',
   type: 'document',
+  icon: CogIcon,
+  groups: [
+    {name: 'header', title: 'Header & navigation', default: true},
+    {name: 'footer', title: 'Footer & social links'},
+    {name: 'whatsapp', title: 'WhatsApp chat'},
+  ],
   fields: [
     // --- HEADER SECTION ---
     {
       name: 'headerSection',
       title: 'Header Section',
       type: 'object',
+      group: 'header',
+      options: {collapsible: true},
       fields: [
         {
           name: 'logo',
@@ -28,7 +37,8 @@ const headerFooter = {
               fields: [
                 { name: 'name', title: 'Link Name', type: 'string', validation: (rule: Rule) => rule.required() },
                 { name: 'href', title: 'Link URL', type: 'string', validation: (rule: Rule) => rule.required() }
-              ]
+              ],
+              preview: {select: {title: 'name', subtitle: 'href'}},
             }
           ]
         }
@@ -40,6 +50,8 @@ const headerFooter = {
       name: 'footerSection',
       title: 'Footer Section',
       type: 'object',
+      group: 'footer',
+      options: {collapsible: true},
       fields: [
         {
           name: 'companyName',
@@ -80,6 +92,8 @@ const headerFooter = {
       name: 'whatsappSettings',
       title: 'WhatsApp Settings',
       type: 'object',
+      group: 'whatsapp',
+      options: {collapsible: true},
       fields: [
         {
           name: 'whatsappNumber',

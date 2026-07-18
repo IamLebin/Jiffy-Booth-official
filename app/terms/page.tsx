@@ -15,7 +15,7 @@ export default async function TermsOfService() {
       }
     }`,
     {},
-    { cache: 'no-store' } // Ensures your team sees Sanity updates immediately
+    { next: { revalidate: 3600, tags: ['legal-terms'] } }
   );
 
   // Guard clause if the document hasn't been created in Sanity Studio yet

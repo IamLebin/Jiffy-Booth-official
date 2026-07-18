@@ -67,7 +67,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       ctaTitle
     }`,
     { slug }, 
-    { cache: 'no-store' }
+    { next: { revalidate: 3600, tags: [`service-${slug}`] } }
   );
 
   if (!data) {

@@ -1,19 +1,9 @@
 import { NextResponse } from "next/server";
-import { client } from "@/sanity/lib/client";
+import { getEvents } from "@/sanity/lib/data";
 
 export async function GET() {
   try {
-    const events = await client.fetch(
-      `*[_type == "ourEvents"] | order(coalesce(order, 9999) asc, _createdAt asc) {
-        title,
-        category,
-        description,
-        "slug": slug.current,
-        "image": image.asset->url
-      }`,
-      {},
-      { cache: "no-store" }
-    );
+    const events = await getEvents();
 
     return NextResponse.json(Array.isArray(events) ? events : []);
   } catch (error) {

@@ -1,0 +1,647 @@
+'use client'; 
+
+import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
+import Glide from "@glidejs/glide";
+import { urlFor } from "@/sanity/lib/image";
+import Link from 'next/link';
+import { User, Star, ShieldCheck, Heart, Calendar, Sparkles, Maximize2, X } from "lucide-react"; 
+
+import "@glidejs/glide/dist/css/glide.core.min.css"; 
+
+export type Brand = { name?: string; logo?: string };
+export type Service = { title?: string; description?: string; slug?: string; image?: string };
+export type EventItem = { title?: string; category?: string; description?: string; slug?: string; image?: string };
+type TemplateItem = { designImage?: string; title?: string };
+type Testimonial = { rating?: number; text?: string; name?: string };
+
+export type MainPage = {
+  heroBackgroundType?: string;
+  heroVideoUrl?: string | null;
+  heroBackgroundImage?: string | null;
+  heroLogo?: string | null;
+  heroTitle?: string;
+  heroBio?: string;
+  brands?: Brand[];
+  templates?: TemplateItem[];
+  testimonials?: Testimonial[];
+};
+
+const fallbackPageData: MainPage = {
+  heroTitle: "Jiffy Booth",
+  heroBio: "Premium photo booth experiences for weddings, launches, and celebrations.",
+  heroBackgroundType: "image",
+  brands: [],
+  templates: [],
+  testimonials: [],
+};
+
+export type HomeData = {
+  mainPage?: MainPage | null;
+  services?: Service[];
+  events?: EventItem[];
+};
+
+const emptyServices: Service[] = [];
+const emptyEvents: EventItem[] = [];
+
+export default function HomePageClient({ initialData }: { initialData: HomeData }) {
+  const glideRef = useRef<HTMLDivElement | null>(null);
+  const testimonialsRowRef = useRef<HTMLDivElement | null>(null);
+  const pageData = initialData.mainPage || null;
+  const servicesData = initialData.services || emptyServices;
+  const eventsData = initialData.events || emptyEvents;
+  const [eventSearch, setEventSearch] = useState('');
+  const [testimonialsCanScroll, setTestimonialsCanScroll] = useState(false);
+  const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
+
+  // --- TEMPLATES SLIDER INITIALIZATION ---
+  useEffect(() => {
+    if (glideRef.current && pageData?.templates && pageData.templates.length > 0) {
+      const glide = new Glide(glideRef.current, {
+        type: 'carousel',
+        startAt: 0,
+        focusAt: 'center',
+        perView: 3,
+        gap: 120, 
+        autoplay: false, 
+        animationDuration: 500, 
+        animationTimingFunc: 'cubic-bezier(0.165, 0.84, 0.44, 1)', 
+        breakpoints: {
+          1024: { perView: 2, gap: 180 }, 
+          768: { perView: 1, gap: 20 }
+        }
+      });
+
+      let moveDirection = '>'; 
+      let autoplayTimer: NodeJS.Timeout;
+
+      const startCustomAutoplay = () => {
+        clearInterval(autoplayTimer);
+        autoplayTimer = setInterval(() => {
+          glide.go(moveDirection); 
+        }, 4000); 
+      };
+
+      glide.on('run.before', (ctx?: unknown) => {
+        const move = ctx as { direction?: string } | undefined;
+        if (move?.direction === '<' || move?.direction === '>') {
+          moveDirection = move.direction as string;
+          startCustomAutoplay(); 
+        }
+      });
+
+      glide.mount();
+      startCustomAutoplay(); 
+      
+      const handleResize = () => glide.update();
+      window.addEventListener('resize', handleResize);
+      
+      return () => {
+        clearInterval(autoplayTimer);
+        glide.destroy();
+        window.removeEventListener('resize', handleResize);
+      };
+    }
+  }, [pageData]);
+
+  useEffect(() => {
+    const updateTestimonialsScrollState = () => {
+      const row = testimonialsRowRef.current;
+      if (!row) return;
+      setTestimonialsCanScroll(row.scrollWidth > row.clientWidth + 1);
+    };
+
+    const raf = requestAnimationFrame(updateTestimonialsScrollState);
+    window.addEventListener('resize', updateTestimonialsScrollState);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', updateTestimonialsScrollState);
+    };
+  }, [pageData?.testimonials?.length]);
+
+  const page = pageData || fallbackPageData;
+  const brands: Brand[] = page.brands && page.brands.length > 0 ? page.brands : [];
+  const services: Service[] = servicesData && servicesData.length > 0 ? servicesData : [];
+
+  const filteredEvents = useMemo(() => {
+    const term = eventSearch.trim().toLowerCase();
+    if (!term) return eventsData;
+
+    return eventsData.filter((item) =>
+      (item?.title || '').toLowerCase().includes(term) ||
+      (item?.category || '').toLowerCase().includes(term) ||
+      (item?.description || '').toLowerCase().includes(term)
+    );
+  }, [eventsData, eventSearch]);
+
+  return (
+    <main className="min-h-screen bg-white font-inter overflow-x-hidden">
+      
+      {/* --- HERO SECTION: DYNAMIC BACKGROUND --- */}
+      <section className="relative w-full min-h-[80vh] md:min-h-screen flex items-center bg-white overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          {page.heroBackgroundType === 'video' && page.heroVideoUrl ? (
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              poster={page.heroBackgroundImage ? urlFor(page.heroBackgroundImage).url() : "/hero-background.jpg"}
+              aria-hidden="true"
+              className="absolute inset-0 w-full h-full object-cover opacity-15"
+            >
+              <source src={page.heroVideoUrl} type="video/mp4" />
+            </video>
+          ) : (
+            <Image 
+              src={page.heroBackgroundImage ? urlFor(page.heroBackgroundImage).url() : "/hero-background.jpg"} 
+              alt="Hero Background"
+              fill
+              sizes="100vw"
+              className="object-cover opacity-10" 
+              priority
+            />
+          )}
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto w-full px-6 flex flex-col md:flex-row items-center justify-center gap-10 md:gap-20">
+          <div className="flex flex-col items-center text-center order-1 md:order-2">
+            <div className="flex -mb-2 justify-center w-full">
+              <Image 
+                  src={page.heroLogo ? urlFor(page.heroLogo).url() : "/logo.png"} 
+                alt="Jiffy Logo"
+                width={300}
+                height={150}
+                className="hidden md:block h-auto w-24 md:w-40 object-contain"
+              />
+            </div>
+            
+            <h1 className="text-jiffy-dark font-bold leading-[0.7] tracking-tighter text-5xl md:text-[clamp(60px,8vw,120px)]">
+              {page.heroTitle || fallbackPageData.heroTitle}
+            </h1>
+            
+            <p className="text-jiffy-dark mt-6 font-light tracking-widest max-w-md text-base md:text-[clamp(18px,1.5vw,20px)]">
+              {page.heroBio || fallbackPageData.heroBio}
+            </p>
+
+            <Link
+              href="/contact-us"
+              className="inline-block mt-8 px-10 py-4 rounded-full font-bold uppercase tracking-widest text-white shadow-2xl hover:scale-105 active:scale-95 transition-all"
+              style={{ backgroundColor: '#9b5744' }}
+            >
+              Ask Us
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* --- SERVICE GRID SECTION --- */}
+      {services.length > 0 && (
+        <section className="bg-[#e8dfd2] py-8 md:py-10 px-6 sm:px-10 lg:px-16 xl:px-24 scroll-mt-24">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center max-w-2xl mx-auto mb-6 md:mb-8">
+              <p className="text-jiffy-dark/70 uppercase tracking-[0.35em] text-xs md:text-sm mb-4">Our Services</p>
+              <h2 className="section-title leading-tight">
+                A Booth for All Occasions
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8">
+              {services.map((service: Service, index: number) => {
+                const slug = service?.slug || `service-${index + 1}`;
+
+                return (
+                  <Link
+                    key={index}
+                    href={`/services/${slug}`}
+                    className="group block text-jiffy-dark"
+                  >
+                    <article className="flex h-full flex-col space-y-3 md:space-y-4 rounded-[1.75rem] bg-white p-3 md:p-4 shadow-sm">
+                      <div className="overflow-hidden rounded-[1.25rem] bg-white transition-transform duration-500 group-hover:-translate-y-1">
+                        {service.image ? (
+                          <Image
+                            src={service.image}
+                            alt={service.title || ''}
+                            width={800}
+                            height={1000}
+                            className="h-[220px] md:h-[240px] lg:h-[260px] w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="h-[220px] md:h-[240px] lg:h-[260px] w-full bg-gradient-to-br from-[#f5ebe1] to-[#e7cfb4] flex items-center justify-center px-6 text-center border border-[#d9c0a3]">
+                            <div>
+                              <p className="text-jiffy-dark font-bold text-base md:text-lg tracking-tight">
+                                {service.title}
+                              </p>
+                              <p className="text-jiffy-dark/70 text-xs md:text-sm mt-2 uppercase tracking-[0.15em]">
+                                Image Coming Soon
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="px-1 pb-1">
+                        <h3 className="font-inter text-lg md:text-xl lg:text-2xl text-jiffy-dark mb-1">
+                          {service.title}
+                        </h3>
+                        <p className="text-xs md:text-sm lg:text-[15px] leading-snug text-jiffy-dark/85">
+                          {service.description}
+                        </p>
+                        <div className="mt-3 inline-flex items-center gap-2 text-[11px] md:text-xs uppercase tracking-[0.2em] font-bold text-jiffy-dark">
+                          Learn More
+                          <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                        </div>
+                      </div>
+                    </article>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* --- OUR EVENTS PREVIEW SECTION --- */}
+      <section className="py-16 md:py-20 px-6 bg-[#f4f4f4] border-t border-[#e8e3da]">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-4xl mx-auto mb-10 md:mb-12">
+            <h2 className="section-title mb-4">
+              Portfolio
+            </h2>
+            <p className="text-jiffy-dark/75 text-sm md:text-base leading-relaxed">
+              Explore our past setups and photo outputs. From 4R prints to classic strips, discover how our booths create lasting memories.
+            </p>
+
+            <div className="mt-8 max-w-md mx-auto relative">
+              <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-jiffy-dark/45">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.3-4.3" />
+                </svg>
+              </span>
+              <label htmlFor="event-search" className="sr-only">Search portfolio</label>
+              <input
+                id="event-search"
+                type="text"
+                value={eventSearch}
+                onChange={(e) => setEventSearch(e.target.value)}
+                placeholder="Search portfolio (e.g. wedding, strip)..."
+                aria-label="Search portfolio"
+                className="w-full rounded-full border border-transparent bg-[#e7e7e7] py-3 pl-11 pr-5 text-sm text-jiffy-dark outline-none transition-colors focus:border-[#c9c3bb] focus:bg-white"
+              />
+            </div>
+          </div>
+
+          {/* Masonry Layout Grid */}
+          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6">
+            {filteredEvents.slice(0, 12).map((item, index: number) => (
+              <div
+                key={index}
+                className="group relative break-inside-avoid mb-6 rounded-[1.5rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer bg-stone-100"
+                onClick={() => setEnlargedImage(item?.image || null)}
+              >
+                {item?.image ? (
+                  <Image 
+                    src={item.image} 
+                    alt={item?.title || 'Portfolio Image'} 
+                    width={600} 
+                    height={800} 
+                    className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-[1.02]" 
+                  />
+                ) : (
+                  <div className="w-full aspect-[3/4] flex items-center justify-center bg-gradient-to-br from-[#ece6de] to-[#dcd3c7]">
+                    <p className="font-serif italic text-sm text-jiffy-dark">No Image</p>
+                  </div>
+                )}
+                
+                {/* Hover Overlay */}
+                <div className="absolute inset-0 p-4 md:p-5 bg-gradient-to-t from-black/60 via-black/15 to-transparent md:opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                  <div className="absolute bottom-4 left-4 right-4 md:bottom-5 md:left-5 md:right-5 flex items-end justify-between gap-4">
+                    <p className="text-white font-bold tracking-widest uppercase text-sm md:text-base drop-shadow-md">
+                      {item?.category || item?.title}
+                    </p>
+                    <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/20 text-white border border-white/30 flex-shrink-0">
+                      <Maximize2 className="w-5 h-5" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {filteredEvents.length === 0 && (
+            <div className="mt-10 rounded-2xl border border-[#ddd5c9] bg-white p-8 text-center text-jiffy-dark/70">
+              No portfolio items found matching your search.
+            </div>
+          )}
+
+          <div className="mt-10 text-center">
+            <Link 
+              href="/portfolio" 
+              className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-[#9b5744] hover:text-jiffy-dark transition-colors"
+            >
+              View Full Portfolio <span className="text-lg">→</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* --- OUR TEMPLATES SECTION --- */}
+      <section id="templates" className="w-full py-8 md:py-16 scroll-mt-24 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-6 mb-6 md:mb-16 flex justify-center">          
+          <h2 className="section-title">
+            Our Templates
+          </h2>
+        </div>
+
+        <div className="glide relative w-full overflow-visible py-2 md:py-16" ref={glideRef}>
+          <div className="glide__track overflow-visible" data-glide-el="track">
+            <ul className="glide__slides items-center min-h-[450px] md:min-h-[500px]">
+              {page.templates?.map((item: TemplateItem, index: number) => (
+                <li key={index} className="glide__slide flex justify-center items-center px-4 md:px-0">
+                  <div className="template-container transition-all duration-500">
+                    {item.designImage && (
+                      <Image
+                        src={urlFor(item.designImage).url()}
+                        alt={item.title || `Template ${index}`}
+                        width={900}
+                        height={600}
+                        className="template-img template-shadow rounded-sm"
+                      />
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="glide__arrows" data-glide-el="controls">
+            <button aria-label="Previous slide" className="glide__arrow glide__arrow--left p-3 md:p-4 bg-jiffy-dark text-white rounded-full shadow-xl hover:scale-110 active:scale-95 transition-all" data-glide-dir="<">
+              <svg className="w-4 h-4 md:w-7 md:h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <button aria-label="Next slide" className="glide__arrow glide__arrow--right p-3 md:p-4 bg-jiffy-dark text-white rounded-full shadow-xl hover:scale-110 active:scale-95 transition-all" data-glide-dir=">">
+              <svg className="w-4 h-4 md:w-7 md:h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+          </div>
+
+          <div className="glide__bullets flex justify-center items-center gap-3 mt-12" data-glide-el="controls[nav]">
+            {page.templates?.map((_: TemplateItem, index: number) => (
+              <button
+                key={index}
+                className="glide__bullet focus:outline-none"
+                data-glide-dir={`=${index}`}
+                aria-label={`Go to slide ${index + 1}`}
+              ></button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* --- FOOTER CTA --- */}
+      <section className="py-24 text-center">
+        <h2 className="section-title mb-10">Ready to Book?</h2>
+        <Link href="/contact-us" className="inline-block bg-[#9b5744] text-white px-16 py-6 rounded-full font-bold uppercase tracking-widest shadow-2xl hover:bg-[#844a39] hover:scale-105 active:scale-95 transition-all">Book Now</Link>
+      </section>
+
+      {/* --- USP SECTION --- */}
+      <section className="bg-[#e8dfd2] py-8 md:py-10 border-y border-[#ddd0be]">
+        <div className="w-full px-6 md:px-10 lg:px-16 xl:px-24">
+          <h2 className="section-title mb-7 md:mb-8">
+            Why Jiffy Booth
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-6 md:gap-y-7 lg:gap-x-6 xl:gap-x-8">
+            <div className="text-center space-y-2.5">
+              <div className="flex justify-center text-jiffy-dark">
+                <ShieldCheck size={30} strokeWidth={2.1} />
+              </div>
+              <h3 className="text-jiffy-dark font-black uppercase text-lg md:text-xl tracking-tight whitespace-nowrap">
+                Premium Quality
+              </h3>
+              <p className="text-jiffy-dark/85 text-sm md:text-base leading-relaxed max-w-[220px] mx-auto">
+                Professional-grade booths with polished outputs your guests will want to keep.
+              </p>
+            </div>
+
+            <div className="text-center space-y-2.5">
+              <div className="flex justify-center text-jiffy-dark">
+                <Heart size={30} strokeWidth={2.1} />
+              </div>
+              <h3 className="text-jiffy-dark font-black uppercase text-lg md:text-xl tracking-tight">
+                Loved by Guests
+              </h3>
+              <p className="text-jiffy-dark/85 text-sm md:text-base leading-relaxed max-w-[220px] mx-auto">
+                Easy, fun experiences designed to create genuine smiles and memorable moments.
+              </p>
+            </div>
+
+            <div className="text-center space-y-2.5">
+              <div className="flex justify-center text-jiffy-dark">
+                <Calendar size={30} strokeWidth={2.1} />
+              </div>
+              <h3 className="text-jiffy-dark font-black uppercase text-lg md:text-xl tracking-tight">
+                Reliable Setup
+              </h3>
+              <p className="text-jiffy-dark/85 text-sm md:text-base leading-relaxed max-w-[220px] mx-auto">
+                On-time arrival, smooth coordination, and support from pre-event planning to wrap-up.
+              </p>
+            </div>
+
+            <div className="text-center space-y-2.5">
+              <div className="flex justify-center text-jiffy-dark">
+                <Sparkles size={30} strokeWidth={2.1} />
+              </div>
+              <h3 className="text-jiffy-dark font-black uppercase text-lg md:text-xl tracking-tight">
+                Fresh Concepts
+              </h3>
+              <p className="text-jiffy-dark/85 text-sm md:text-base leading-relaxed max-w-[220px] mx-auto">
+                Creative themes, custom templates, and modern booth styles tailored to your event.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* --- TESTIMONIALS SECTION --- */}
+      {page.testimonials && page.testimonials.length > 0 && (
+        <section className="bg-slate-50 py-24 md:py-32 overflow-hidden border-y border-gray-100">
+          <div className="w-full px-6 md:px-10 lg:px-16 xl:px-24">
+            <div className="text-center mb-16">
+              <h2 className="section-title mb-4">What Our Clients Say</h2>
+              <div className="h-1.5 w-24 bg-jiffy-dark mx-auto rounded-full opacity-20" />
+            </div>
+
+            <div
+              ref={testimonialsRowRef}
+              className={`overflow-x-auto testimonial-scroll pb-8 flex flex-row nowrap gap-6 ${testimonialsCanScroll ? 'justify-start' : 'justify-center'}`}
+            >
+              {page.testimonials.map((testimonial: Testimonial, i: number) => (
+                <div key={i} className="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-6 flex flex-col justify-between flex-shrink-0 w-[280px] hover:shadow-xl transition-all duration-500 hover:-translate-y-2">
+                  <div>
+                    <div className="flex gap-1 mb-4">
+                      {Array.from({ length: testimonial.rating || 5 }).map((_, star) => (
+                        <Star key={star} size={16} fill="#9b5744" className="text-[#9b5744]" />
+                      ))}
+                    </div>
+                    <div className="testimonial-text-scroll overflow-y-auto mb-6 h-[100px]">
+                      <p className="text-gray-600 text-sm italic">&quot;{testimonial.text}&quot;</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center border-2 border-stone-50 text-stone-400 flex-shrink-0">
+                      <User size={20} />
+                    </div>
+                    <div className="text-left">
+                      <h4 className="font-bold text-jiffy-dark uppercase tracking-tight text-xs">{testimonial.name}</h4>
+                      <p className="text-gray-400 text-[10px] uppercase tracking-widest">Verified Client</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* --- MARQUEE SECTION --- */}
+      <section className="bg-white py-20 md:py-32 border-y border-gray-100 overflow-hidden relative">
+        <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
+          <div className="mb-16">
+            <h2 className="section-title mb-4">
+              Trusted By
+            </h2>
+            <p className="text-gray-600 text-lg max-w-2xl mx-auto font-light">
+              Partnering with companies to create unforgettable memories
+            </p>
+          </div>
+        </div>
+
+        {brands.length > 0 && (
+          <div className="w-full overflow-hidden relative">
+            <div className="flex gap-16 md:gap-32 animate-marquee-slow items-center">
+              {[...brands, ...brands, ...brands, ...brands, ...brands, ...brands, ...brands, ...brands, ...brands, ...brands].map((brand: Brand, i: number) => (
+                <div key={i} className="flex items-center justify-center shrink-0">
+                  {brand.logo && (
+                    <Image src={brand.logo} alt={brand.name || ''} width={140} height={56} className="h-10 md:h-14 w-auto object-contain" />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* --- ENLARGE IMAGE MODAL --- */}
+      {enlargedImage && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-jiffy-dark/90 backdrop-blur-sm p-4 md:p-8" onClick={() => setEnlargedImage(null)}>
+          <button 
+            className="absolute top-6 right-6 text-white/80 hover:text-white p-2 transition-colors"
+            onClick={() => setEnlargedImage(null)}
+            aria-label="Close modal"
+          >
+            <X className="w-8 h-8" />
+          </button>
+          <div className="relative w-full max-w-5xl max-h-full flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+            <Image 
+              src={enlargedImage} 
+              alt="Enlarged view" 
+              width={1600} 
+              height={1600} 
+              className="max-w-full max-h-[85vh] w-auto h-auto object-contain rounded-xl shadow-2xl" 
+            />
+          </div>
+        </div>
+      )}
+
+      <style jsx global>{`
+        .glide__slide {
+          opacity: 0.35;
+          transform: scale(0.85);
+          transition: all 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
+          filter: blur(1px);
+        }
+        .glide__slide--active {
+          opacity: 1 !important;
+          transform: scale(1.08) !important;
+          z-index: 10;
+          filter: blur(0px);
+        }
+        .template-img {
+          max-height: 450px;
+          max-width: 80vw;
+          width: auto;
+          height: auto;
+          object-fit: contain;
+        }
+        .template-shadow {
+          box-shadow: -20px 0 25px -5px rgba(0, 0, 0, 0.1),
+                      20px 0 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .glide__bullet {
+          width: 12px;
+          height: 12px;
+          padding: 0;
+          border-radius: 999px;
+          background-color: #d1d5db;
+          border: none;
+          cursor: pointer;
+          transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        .glide__bullet--active {
+          width: 42px;
+          background-color: #1F2937 !important;
+        }
+        .glide__bullet:hover { background-color: #9ca3af; }
+        .glide__arrows {
+          pointer-events: none;
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 5rem;
+          z-index: 20;
+        }
+        .glide__arrows button {
+          pointer-events: auto;
+        }
+        @media (max-width: 768px) {
+          .glide__arrows {
+            position: relative;
+            inset: auto;
+            justify-content: center;
+            gap: 1.5rem;
+            padding: 0;
+            margin-top: 1.5rem;
+          }
+        }
+        @keyframes marquee { 
+          from { transform: translateX(0); } 
+          to { transform: translateX(-50%); } 
+        }
+        .animate-marquee-slow { 
+          animation: marquee 40s linear infinite; 
+          width: max-content;
+        }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        .testimonial-scroll::-webkit-scrollbar { height: 4px; }
+        .testimonial-scroll::-webkit-scrollbar-track { background: #e5e7eb; border-radius: 10px; margin: 0 25%; }
+        .testimonial-scroll::-webkit-scrollbar-thumb { background: #1F2937; border-radius: 10px; }
+        .testimonial-text-scroll::-webkit-scrollbar { width: 4px; }
+        .testimonial-text-scroll::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        @media (max-width: 768px) {
+          .template-img { 
+            max-height: 400px;
+            max-width: 90vw;
+          }
+          .glide__slide--active { transform: scale(1.05) !important; }
+          .testimonial-scroll::-webkit-scrollbar-track { margin: 0 10%; }
+        }
+      `}</style>
+    </main>
+  );
+}

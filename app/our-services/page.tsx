@@ -23,7 +23,7 @@ export default async function OurServicesPage() {
       accentColor
     }`,
     {},
-    { cache: 'no-store' } 
+    { next: { revalidate: 3600, tags: ['services'] } }
   )) as ServiceItem[];
 
   return (

@@ -1,80 +1,61 @@
-import type {StructureResolver} from 'sanity/structure'
+import {
+  CaseIcon,
+  CogIcon,
+  EnvelopeIcon,
+  HelpCircleIcon,
+  HomeIcon,
+  ImagesIcon,
+  LockIcon,
+  UsersIcon,
+} from '@sanity/icons'
+import type {ComponentType} from 'react'
+import type {StructureBuilder, StructureResolver} from 'sanity/structure'
+
+const singleton = (
+  S: StructureBuilder,
+  title: string,
+  schemaType: string,
+  documentId: string,
+  icon: ComponentType,
+) =>
+  S.listItem()
+    .title(title)
+    .id(documentId)
+    .icon(icon)
+    .child(S.document().schemaType(schemaType).documentId(documentId).title(title))
 
 export const structure: StructureResolver = (S) =>
   S.list()
-    .title('Website Content')
+    .title('Jiffy Booth')
     .items([
-      // 1. MAIN PAGE (Single Document)
+      singleton(S, 'Home Page', 'mainPage', 'mainPage', HomeIcon),
+      singleton(S, 'Header, Footer & WhatsApp', 'headerFooter', 'headerFooter', CogIcon),
+
+      S.divider().title('Website pages'),
+      singleton(S, 'About Us', 'aboutUs', 'aboutUs', UsersIcon),
+      singleton(S, 'Contact Us', 'contactPage', 'contactPage', EnvelopeIcon),
+      singleton(S, 'Frequently Asked Questions', 'faqPage', 'faqPage', HelpCircleIcon),
+
+      S.divider().title('Content collections'),
       S.listItem()
-        .title('Main Page Content')
-        .id('mainPage')
+        .title('Services & Booths')
+        .id('services')
+        .icon(CaseIcon)
         .child(
-          S.document()
-            .schemaType('mainPage')
-            .documentId('mainPage')
+          S.documentTypeList('ourServices')
+            .title('Services & Booths')
+            .defaultOrdering([{field: 'order', direction: 'asc'}]),
+        ),
+      S.listItem()
+        .title('Portfolio Events')
+        .id('events')
+        .icon(ImagesIcon)
+        .child(
+          S.documentTypeList('ourEvents')
+            .title('Portfolio Events')
+            .defaultOrdering([{field: 'order', direction: 'asc'}]),
         ),
 
-      S.divider(), // Adds a visual line
-
-      // 2. ABOUT US (Single Document)
-      S.listItem()
-        .title('About Us Page')
-        .id('aboutUs') 
-        .child(
-          S.document()
-            .schemaType('aboutUs') 
-            .documentId('aboutUs')
-        ),
-
-      // 3. ALL BOOTH SERVICES (List of Documents)
-      S.documentTypeListItem('ourServices')
-        .title('Our Services (Booths)'),
-
-      // 4. ALL EVENTS (List of Documents)
-      S.documentTypeListItem('ourEvents')
-        .title('Our Events'),
-
-      S.divider(),
-
-      // 5. Contact Us Page (Single Document)
-      S.listItem()
-        .title('Contact Us Page')
-        .id('contactPage')
-        .child(
-          S.document()
-            .schemaType('contactPage')
-            .documentId('contactPage')
-        ),
-
-      // 6. FAQ Page (Single Document)
-      S.listItem()
-        .title('FAQ Page')
-        .id('faqPage')
-        .child(
-          S.document()
-            .schemaType('faqPage')
-            .documentId('faqPage')
-        ),
-
-      // 7. LEGAL PAGES (List of Documents: Privacy, Terms, etc.)
-      S.documentTypeListItem('legalPage')
-        .title('Legal Pages (Privacy/Terms)'),
-
-      S.divider(),
-
-      // 8. HEADER & FOOTER (Single Document)
-      S.listItem()
-        .title('Header & Footer')
-        .id('headerFooter')
-        .child(
-          S.document()
-            .schemaType('headerFooter')
-            .documentId('headerFooter')
-        ),
-
-      // Automatically hide document types from the "generic" list if they are managed above
-      // ADDED 'legalPage' to this filter to keep the sidebar clean
-      ...S.documentTypeListItems().filter(
-        (item) => !['mainPage', 'ourServices', 'ourEvents', 'aboutUs', 'team', 'contactPage', 'faqPage', 'photoboothPage', 'headerFooter', 'legalPage'].includes(item.getId()!)
-      ),
+      S.divider().title('Policies'),
+      S.documentTypeListItem('legalPage').title('Privacy & Terms').icon(LockIcon),
     ])

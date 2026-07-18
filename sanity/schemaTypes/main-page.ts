@@ -1,15 +1,24 @@
               /* eslint-disable @typescript-eslint/no-explicit-any */
               import {defineField, defineType} from 'sanity'
+              import {HomeIcon} from '@sanity/icons'
 
               export default defineType({
                 name: 'mainPage',
                 title: 'Main Page Content',
                 type: 'document',
+                icon: HomeIcon,
+                groups: [
+                  {name: 'hero', title: 'Hero section', default: true},
+                  {name: 'showcase', title: 'Templates & partners'},
+                  {name: 'events', title: 'Event categories'},
+                  {name: 'proof', title: 'Testimonials'},
+                ],
                 fields: [
                   defineField({
                     name: 'heroLogo',
                     title: 'Hero Brand Logo',
                     type: 'image',
+                    group: 'hero',
                     options: { hotspot: true }
                   }),
 
@@ -17,6 +26,7 @@
                     name: 'heroTitle',
                     title: 'Hero Title',
                     type: 'string',
+                    group: 'hero',
                     validation: (rule: any) => rule.required(),
                   }),
 
@@ -24,6 +34,7 @@
                     name: 'heroBio',
                     title: 'Hero Tagline',
                     type: 'string',
+                    group: 'hero',
                     validation: (rule: any) => rule.required(),
                   }),
 
@@ -31,6 +42,7 @@
                     name: 'heroBackgroundType',
                     title: 'Hero Background Type',
                     type: 'string',
+                    group: 'hero',
                     options: { list: [{ title: 'Image', value: 'image' }, { title: 'Video', value: 'video' }], layout: 'radio' },
                     initialValue: 'image'
                   }),
@@ -39,6 +51,7 @@
                     name: 'heroBackgroundImage',
                     title: 'Hero Background Image',
                     type: 'image',
+                    group: 'hero',
                     options: { hotspot: true },
                     hidden: ({ parent }) => parent?.heroBackgroundType !== 'image'
                   }),
@@ -47,6 +60,7 @@
                     name: 'heroBackgroundVideo',
                     title: 'Hero Background Video',
                     type: 'file',
+                    group: 'hero',
                     options: { accept: 'video/mp4' },
                     hidden: ({ parent }) => parent?.heroBackgroundType !== 'video'
                   }),
@@ -55,6 +69,7 @@
                     name: 'templates',
                     title: 'Sample Templates Slider',
                     type: 'array',
+                    group: 'showcase',
                     of: [
                       defineField({
                         name: 'template',
@@ -71,6 +86,7 @@
                     name: 'brands',
                     title: 'Partner Logos (Dynamic Marquee)',
                     type: 'array',
+                    group: 'showcase',
                     of: [
                       { type: 'object', fields: [{ name: 'name', type: 'string' }, { name: 'logo', type: 'image' }] }
                     ]
@@ -80,6 +96,7 @@
                     name: 'categories',
                     title: 'Event Categories',
                     type: 'array',
+                    group: 'events',
                     of: [
                       defineField({
                         name: 'category',
@@ -98,6 +115,7 @@
                     name: 'testimonials',
                     title: 'Client Testimonials',
                     type: 'array',
+                    group: 'proof',
                     of: [
                       { type: 'object', fields: [ { name: 'name', type: 'string' }, { name: 'text', type: 'text' }, { name: 'rating', type: 'number', validation: (rule: any) => rule.min(1).max(5).integer() } ] }
                     ]

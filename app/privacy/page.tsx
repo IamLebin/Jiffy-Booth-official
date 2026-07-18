@@ -15,7 +15,7 @@ export default async function PrivacyPolicy() {
       }
     }`,
     {},
-    { cache: 'no-store' }
+    { next: { revalidate: 3600, tags: ['legal-privacy'] } }
   );
 
   if (!data) {

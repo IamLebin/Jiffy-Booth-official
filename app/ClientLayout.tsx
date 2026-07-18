@@ -5,41 +5,17 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import EnquiryForm from "@/components/EnquiryForm";
-
-type NavLink = {
-  name: string;
-  href: string;
-};
-
-type SiteSettings = {
-  headerSection?: {
-    logo?: string;
-    navigationLinks?: NavLink[];
-  };
-  footerSection?: {
-    companyName?: string;
-    tagline?: string;
-    copyrightText?: string;
-    socialLinks?: {
-      instagram?: string;
-      tiktok?: string;
-      xiaohongshu?: string;
-    };
-  };
-  whatsappSettings?: {
-    whatsappNumber?: string;
-    defaultMessage?: string;
-    floatingMessage?: string;
-  };
-};
+import type { NavLink, SiteSettings } from "@/sanity/lib/data";
 
 export default function ClientLayout({
   children,
   siteSettings,
+  footerServiceLinks,
   interClassName,
 }: {
   children: React.ReactNode;
   siteSettings: SiteSettings | null;
+  footerServiceLinks: NavLink[];
   interClassName: string;
 }) {
   const pathname = usePathname();
@@ -47,37 +23,14 @@ export default function ClientLayout({
   const isStudio = pathname.startsWith("/studio");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showWhatsAppMessage, setShowWhatsAppMessage] = useState(false);
-  const [footerServiceLinks, setFooterServiceLinks] = useState<NavLink[]>([]);
 
   // Show WhatsApp message after 2 seconds
   useEffect(() => {
-    let mounted = true;
-
     const timer = setTimeout(() => {
       setShowWhatsAppMessage(true);
     }, 2000);
 
-    async function fetchFooterServices() {
-      try {
-        const services = await fetch('/api/home-data', { cache: 'no-store' }).then((response) => response.json());
-        const links = (services?.services || [])
-          .filter((service: { title?: string; slug?: string }) => Boolean(service?.title && service?.slug))
-          .map((service: { title: string; slug: string }) => ({ name: service.title, href: `/services/${service.slug}` }));
-
-        if (mounted) {
-          setFooterServiceLinks(links);
-        }
-      } catch {
-        if (mounted) {
-          setFooterServiceLinks([]);
-        }
-      }
-    }
-
-    fetchFooterServices();
-
     return () => {
-      mounted = false;
       clearTimeout(timer);
     };
   }, []);
@@ -88,9 +41,9 @@ export default function ClientLayout({
 
   // Get data from Sanity with fallbacks
   const logoUrl = siteSettings?.headerSection?.logo || '/logo.png';
-  const whatsappMessage = siteSettings?.whatsappSettings?.defaultMessage || "Hi Jiffy Booth! I'd like to enquire...";
+  const whatsappMessage = siteSettings?.whatsappSettings?.defaultMessage || "Hi, I'd like a quote";
   const whatsappNum = siteSettings?.whatsappSettings?.whatsappNumber || '60163966562';
-  const floatingMessage = siteSettings?.whatsappSettings?.floatingMessage || "Hi, want to make your event amazing?";
+  const floatingMessage = siteSettings?.whatsappSettings?.floatingMessage || "Chat with us on WhatsApp";
   
   // Navigation links from Sanity or fallback
   const navLinks: NavLink[] = (siteSettings?.headerSection?.navigationLinks as NavLink[]) || [
@@ -110,12 +63,12 @@ export default function ClientLayout({
 
   // Footer data from Sanity or fallbacks
   const companyName = siteSettings?.footerSection?.companyName || "Jiffy Booth";
-  const tagline = siteSettings?.footerSection?.tagline || '"Capturing a jiffy that lasts forever." We specialize in premium event entertainment that brings people together.';
-  const copyrightText = siteSettings?.footerSection?.copyrightText || "© 2026 Jiffy Ventures. All rights reserved.";
+  const tagline = siteSettings?.footerSection?.tagline || "Premium photo booth experiences for events and celebrations.";
+  const copyrightText = siteSettings?.footerSection?.copyrightText || "© Jiffy Booth";
   const socialLinks = siteSettings?.footerSection?.socialLinks || {
-    instagram: "https://www.instagram.com/jiffybooth/",
-    tiktok: "https://www.tiktok.com/@jiffybooth",
-    xiaohongshu: "https://www.xiaohongshu.com/user/profile/5fcc526b00000000010031a0"
+    instagram: "#",
+    tiktok: "#",
+    xiaohongshu: "#"
   };
   return (
     <body className={`${interClassName} antialiased bg-jiffy-cream min-h-screen flex flex-col overflow-x-hidden`}>
