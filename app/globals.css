@@ -33,11 +33,9 @@
   --foreground: #171717;
 }
 
-/* Fix for Sanity Studio & Page Scrolling */
+/* Keep normal document scrolling without overriding embedded full-screen apps. */
 html, body {
-  height: auto !important; 
-  overflow-y: auto !important;
-  min-height: 100vh;
+  min-height: 100%;
 }
 
 body {

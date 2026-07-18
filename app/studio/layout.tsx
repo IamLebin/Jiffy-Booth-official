@@ -1,11 +1,16 @@
-"use client";
-
 import React from "react";
 
 export default function StudioLayout({ children }: { children: React.ReactNode }) {
-  // Minimal layout for embedded Sanity Studio without global header/footer/WhatsApp
   return (
-    <div className="min-h-screen bg-white text-slate-900">
+    <div
+      className="w-full bg-white text-slate-900"
+      style={{
+        height: "100vh",
+        maxHeight: "100dvh",
+        overflow: "auto",
+        overscrollBehavior: "none",
+      }}
+    >
       {children}
     </div>
   );
