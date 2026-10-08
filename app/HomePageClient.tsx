@@ -12,10 +12,13 @@ import "@glidejs/glide/dist/css/glide.core.min.css";
 export type Brand = { name?: string; logo?: string };
 export type Service = { title?: string; description?: string; slug?: string; image?: string };
 export type EventItem = { title?: string; category?: string; description?: string; slug?: string; image?: string };
-type TemplateItem = { designImage?: string; title?: string };
+type TemplateItem = { designImage?: unknown; title?: string };
 type Testimonial = { rating?: number; text?: string; name?: string };
+type PortfolioCategory = { title?: string; slug?: string };
 
 export type MainPage = {
+  sectionTitle?: string;
+  sectionSubtitle?: string;
   heroBackgroundType?: string;
   heroVideoUrl?: string | null;
   heroBackgroundImage?: string | null;
@@ -25,6 +28,15 @@ export type MainPage = {
   brands?: Brand[];
   templates?: TemplateItem[];
   testimonials?: Testimonial[];
+  templatesSectionTitle?: string;
+  templatesSectionSubtitle?: string;
+  portfolioSectionTitle?: string;
+  portfolioSectionSubtitle?: string;
+  trustedLogosSectionTitle?: string;
+  trustedLogosSectionSubtitle?: string;
+  testimonialsSectionTitle?: string;
+  testimonialsSectionSubtitle?: string;
+  sectionVisibility?: { services?: boolean; trustedBy?: boolean; testimonials?: boolean; portfolio?: boolean };
 };
 
 const fallbackPageData: MainPage = {
@@ -40,6 +52,9 @@ export type HomeData = {
   mainPage?: MainPage | null;
   services?: Service[];
   events?: EventItem[];
+  trustedLogos?: Brand[];
+  homepageTestimonials?: Testimonial[];
+  portfolioCategories?: PortfolioCategory[];
 };
 
 const emptyServices: Service[] = [];
@@ -51,7 +66,11 @@ export default function HomePageClient({ initialData }: { initialData: HomeData 
   const pageData = initialData.mainPage || null;
   const servicesData = initialData.services || emptyServices;
   const eventsData = initialData.events || emptyEvents;
+  const trustedLogos = initialData.trustedLogos || [];
+  const homepageTestimonials = initialData.homepageTestimonials || [];
+  const portfolioCategories = initialData.portfolioCategories || [];
   const [eventSearch, setEventSearch] = useState('');
+  const [selectedPortfolioCategory, setSelectedPortfolioCategory] = useState('');
   const [testimonialsCanScroll, setTestimonialsCanScroll] = useState(false);
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
 
@@ -122,19 +141,31 @@ export default function HomePageClient({ initialData }: { initialData: HomeData 
   }, [pageData?.testimonials?.length]);
 
   const page = pageData || fallbackPageData;
-  const brands: Brand[] = page.brands && page.brands.length > 0 ? page.brands : [];
+  const brands: Brand[] = trustedLogos.length > 0 ? trustedLogos : (page.brands || []);
+  const testimonials = homepageTestimonials.length > 0 ? homepageTestimonials : (page.testimonials || []);
+  const templates = page.templates || [];
+  const visibility = page.sectionVisibility || {};
+  const getImageUrl = (source: unknown) => {
+    if (typeof source === 'string') return source;
+    if (!source) return '';
+    return urlFor(source as Parameters<typeof urlFor>[0]).url();
+  };
   const services: Service[] = servicesData && servicesData.length > 0 ? servicesData : [];
+  const quickPortfolioCategories = portfolioCategories.length > 0
+    ? portfolioCategories.filter((category) => category.title)
+    : Array.from(new Set(eventsData.map((event) => event.category).filter(Boolean))).map((category) => ({title: category}));
 
   const filteredEvents = useMemo(() => {
     const term = eventSearch.trim().toLowerCase();
-    if (!term) return eventsData;
 
     return eventsData.filter((item) =>
-      (item?.title || '').toLowerCase().includes(term) ||
-      (item?.category || '').toLowerCase().includes(term) ||
-      (item?.description || '').toLowerCase().includes(term)
+      (!term ||
+        (item?.title || '').toLowerCase().includes(term) ||
+        (item?.category || '').toLowerCase().includes(term) ||
+        (item?.description || '').toLowerCase().includes(term)) &&
+      (!selectedPortfolioCategory || (item?.category || '').toLowerCase() === selectedPortfolioCategory.toLowerCase())
     );
-  }, [eventsData, eventSearch]);
+  }, [eventsData, eventSearch, selectedPortfolioCategory]);
 
   return (
     <main className="min-h-screen bg-white font-inter overflow-x-hidden">
@@ -178,6 +209,7 @@ export default function HomePageClient({ initialData }: { initialData: HomeData 
                 className="hidden md:block h-auto w-24 md:w-40 object-contain"
               />
             </div>
+            {page.sectionTitle && <p className="mb-3 text-jiffy-dark/70 uppercase tracking-[0.35em] text-xs">{page.sectionTitle}</p>}
             
             <h1 className="text-jiffy-dark font-bold leading-[0.7] tracking-tighter text-5xl md:text-[clamp(60px,8vw,120px)]">
               {page.heroTitle || fallbackPageData.heroTitle}
@@ -186,6 +218,7 @@ export default function HomePageClient({ initialData }: { initialData: HomeData 
             <p className="text-jiffy-dark mt-6 font-light tracking-widest max-w-md text-base md:text-[clamp(18px,1.5vw,20px)]">
               {page.heroBio || fallbackPageData.heroBio}
             </p>
+            {page.sectionSubtitle && <p className="mt-2 max-w-md text-sm text-jiffy-dark/65">{page.sectionSubtitle}</p>}
 
             <Link
               href="/contact-us"
@@ -199,7 +232,7 @@ export default function HomePageClient({ initialData }: { initialData: HomeData 
       </section>
 
       {/* --- SERVICE GRID SECTION --- */}
-      {services.length > 0 && (
+      {visibility.services !== false && services.length > 0 && (
         <section className="bg-[#e8dfd2] py-8 md:py-10 px-6 sm:px-10 lg:px-16 xl:px-24 scroll-mt-24">
           <div className="max-w-5xl mx-auto">
             <div className="text-center max-w-2xl mx-auto mb-6 md:mb-8">
@@ -219,8 +252,8 @@ export default function HomePageClient({ initialData }: { initialData: HomeData 
                     href={`/services/${slug}`}
                     className="group block text-jiffy-dark"
                   >
-                    <article className="flex h-full flex-col space-y-3 md:space-y-4 rounded-[1.75rem] bg-white p-3 md:p-4 shadow-sm">
-                      <div className="overflow-hidden rounded-[1.25rem] bg-white transition-transform duration-500 group-hover:-translate-y-1">
+                    <article className="flex h-full flex-col rounded-[1.75rem] bg-white shadow-sm overflow-hidden">
+                      <div className="overflow-hidden rounded-t-[1.75rem] bg-white transition-transform duration-500 group-hover:-translate-y-1">
                         {service.image ? (
                           <Image
                             src={service.image}
@@ -243,7 +276,7 @@ export default function HomePageClient({ initialData }: { initialData: HomeData 
                         )}
                       </div>
 
-                      <div className="px-1 pb-1">
+                      <div className="flex flex-1 flex-col p-3 md:p-4">
                         <h3 className="font-inter text-lg md:text-xl lg:text-2xl text-jiffy-dark mb-1">
                           {service.title}
                         </h3>
@@ -265,14 +298,14 @@ export default function HomePageClient({ initialData }: { initialData: HomeData 
       )}
 
       {/* --- OUR EVENTS PREVIEW SECTION --- */}
-      <section className="py-16 md:py-20 px-6 bg-[#f4f4f4] border-t border-[#e8e3da]">
-        <div className="max-w-7xl mx-auto">
+      <section className="h-[100svh] min-h-[620px] overflow-hidden border-t border-[#e8e3da] bg-[#f4f4f4] px-6 py-10 md:py-14">
+        <div className="mx-auto flex h-full max-w-7xl flex-col">
           <div className="text-center max-w-4xl mx-auto mb-10 md:mb-12">
             <h2 className="section-title mb-4">
-              Portfolio
+              {page.portfolioSectionTitle || 'Portfolio'}
             </h2>
             <p className="text-jiffy-dark/75 text-sm md:text-base leading-relaxed">
-              Explore our past setups and photo outputs. From 4R prints to classic strips, discover how our booths create lasting memories.
+              {page.portfolioSectionSubtitle || 'Explore our past setups and photo outputs. From 4R prints to classic strips, discover how our booths create lasting memories.'}
             </p>
 
             <div className="mt-8 max-w-md mx-auto relative">
@@ -292,11 +325,37 @@ export default function HomePageClient({ initialData }: { initialData: HomeData 
                 aria-label="Search portfolio"
                 className="w-full rounded-full border border-transparent bg-[#e7e7e7] py-3 pl-11 pr-5 text-sm text-jiffy-dark outline-none transition-colors focus:border-[#c9c3bb] focus:bg-white"
               />
+              {quickPortfolioCategories.length > 0 && (
+                <div className="mt-4 flex flex-wrap justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPortfolioCategory('')}
+                    className={`rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${selectedPortfolioCategory ? 'border-[#d8d0c5] bg-transparent text-jiffy-dark/70 hover:bg-white' : 'border-jiffy-dark bg-jiffy-dark text-white'}`}
+                  >
+                    All
+                  </button>
+                  {quickPortfolioCategories.map((category) => {
+                    const categoryKey = category.title || '';
+                    const isSelected = selectedPortfolioCategory === categoryKey;
+
+                    return (
+                      <button
+                        key={categoryKey}
+                        type="button"
+                        onClick={() => setSelectedPortfolioCategory(isSelected ? '' : categoryKey)}
+                        className={`rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${isSelected ? 'border-[#9b5744] bg-[#9b5744] text-white' : 'border-[#d8d0c5] bg-white text-jiffy-dark hover:border-[#9b5744]'}`}
+                      >
+                        {category.title}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
 
           {/* Masonry Layout Grid */}
-          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6">
+          <div className={`min-h-0 flex-1 columns-1 overflow-hidden sm:columns-2 lg:columns-3 xl:columns-4 gap-6 ${filteredEvents.length === 0 ? 'hidden' : ''}`}>
             {filteredEvents.slice(0, 12).map((item, index: number) => (
               <div
                 key={index}
@@ -333,8 +392,10 @@ export default function HomePageClient({ initialData }: { initialData: HomeData 
           </div>
 
           {filteredEvents.length === 0 && (
-            <div className="mt-10 rounded-2xl border border-[#ddd5c9] bg-white p-8 text-center text-jiffy-dark/70">
+            <div className="flex min-h-0 flex-1 items-center justify-center text-center">
+              <p className="text-sm text-jiffy-dark/70">
               No portfolio items found matching your search.
+              </p>
             </div>
           )}
 
@@ -352,20 +413,23 @@ export default function HomePageClient({ initialData }: { initialData: HomeData 
       {/* --- OUR TEMPLATES SECTION --- */}
       <section id="templates" className="w-full py-8 md:py-16 scroll-mt-24 bg-slate-50">
         <div className="max-w-7xl mx-auto px-6 mb-6 md:mb-16 flex justify-center">          
-          <h2 className="section-title">
-            Our Templates
-          </h2>
+          <div className="text-center">
+            <h2 className="section-title">
+              {page.templatesSectionTitle || 'Our Templates'}
+            </h2>
+            {page.templatesSectionSubtitle && <p className="mt-3 text-sm text-jiffy-dark/70">{page.templatesSectionSubtitle}</p>}
+          </div>
         </div>
 
         <div className="glide relative w-full overflow-visible py-2 md:py-16" ref={glideRef}>
           <div className="glide__track overflow-visible" data-glide-el="track">
             <ul className="glide__slides items-center min-h-[450px] md:min-h-[500px]">
-              {page.templates?.map((item: TemplateItem, index: number) => (
+              {templates.map((item: TemplateItem, index: number) => (
                 <li key={index} className="glide__slide flex justify-center items-center px-4 md:px-0">
                   <div className="template-container transition-all duration-500">
-                    {item.designImage && (
+                    {Boolean(item.designImage) && (
                       <Image
-                        src={urlFor(item.designImage).url()}
+                        src={getImageUrl(item.designImage)}
                         alt={item.title || `Template ${index}`}
                         width={900}
                         height={600}
@@ -388,7 +452,7 @@ export default function HomePageClient({ initialData }: { initialData: HomeData 
           </div>
 
           <div className="glide__bullets flex justify-center items-center gap-3 mt-12" data-glide-el="controls[nav]">
-            {page.templates?.map((_: TemplateItem, index: number) => (
+            {templates.map((_: TemplateItem, index: number) => (
               <button
                 key={index}
                 className="glide__bullet focus:outline-none"
@@ -466,11 +530,12 @@ export default function HomePageClient({ initialData }: { initialData: HomeData 
       </section>
 
       {/* --- TESTIMONIALS SECTION --- */}
-      {page.testimonials && page.testimonials.length > 0 && (
+      {visibility.testimonials !== false && testimonials.length > 0 && (
         <section className="bg-slate-50 py-24 md:py-32 overflow-hidden border-y border-gray-100">
           <div className="w-full px-6 md:px-10 lg:px-16 xl:px-24">
             <div className="text-center mb-16">
-              <h2 className="section-title mb-4">What Our Clients Say</h2>
+              <h2 className="section-title mb-4">{page.testimonialsSectionTitle || 'What Our Clients Say'}</h2>
+              {page.testimonialsSectionSubtitle && <p className="mb-4 text-sm text-jiffy-dark/70">{page.testimonialsSectionSubtitle}</p>}
               <div className="h-1.5 w-24 bg-jiffy-dark mx-auto rounded-full opacity-20" />
             </div>
 
@@ -478,7 +543,7 @@ export default function HomePageClient({ initialData }: { initialData: HomeData 
               ref={testimonialsRowRef}
               className={`overflow-x-auto testimonial-scroll pb-8 flex flex-row nowrap gap-6 ${testimonialsCanScroll ? 'justify-start' : 'justify-center'}`}
             >
-              {page.testimonials.map((testimonial: Testimonial, i: number) => (
+              {testimonials.map((testimonial: Testimonial, i: number) => (
                 <div key={i} className="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-6 flex flex-col justify-between flex-shrink-0 w-[280px] hover:shadow-xl transition-all duration-500 hover:-translate-y-2">
                   <div>
                     <div className="flex gap-1 mb-4">
@@ -507,14 +572,14 @@ export default function HomePageClient({ initialData }: { initialData: HomeData 
       )}
 
       {/* --- MARQUEE SECTION --- */}
-      <section className="bg-white py-20 md:py-32 border-y border-gray-100 overflow-hidden relative">
+      {visibility.trustedBy !== false && <section className="bg-white py-20 md:py-32 border-y border-gray-100 overflow-hidden relative">
         <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
           <div className="mb-16">
             <h2 className="section-title mb-4">
-              Trusted By
+              {page.trustedLogosSectionTitle || 'Trusted By'}
             </h2>
             <p className="text-gray-600 text-lg max-w-2xl mx-auto font-light">
-              Partnering with companies to create unforgettable memories
+              {page.trustedLogosSectionSubtitle || 'Partnering with companies to create unforgettable memories'}
             </p>
           </div>
         </div>
@@ -532,7 +597,7 @@ export default function HomePageClient({ initialData }: { initialData: HomeData 
             </div>
           </div>
         )}
-      </section>
+      </section>}
 
       {/* --- ENLARGE IMAGE MODAL --- */}
       {enlargedImage && (

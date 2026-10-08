@@ -6,18 +6,12 @@ const headerFooter = {
   title: 'Header & Footer Settings',
   type: 'document',
   icon: CogIcon,
-  groups: [
-    {name: 'header', title: 'Header & navigation', default: true},
-    {name: 'footer', title: 'Footer & social links'},
-    {name: 'whatsapp', title: 'WhatsApp chat'},
-  ],
   fields: [
     // --- HEADER SECTION ---
     {
       name: 'headerSection',
       title: 'Header Section',
       type: 'object',
-      group: 'header',
       options: {collapsible: true},
       fields: [
         {
@@ -36,7 +30,9 @@ const headerFooter = {
               type: 'object',
               fields: [
                 { name: 'name', title: 'Link Name', type: 'string', validation: (rule: Rule) => rule.required() },
-                { name: 'href', title: 'Link URL', type: 'string', validation: (rule: Rule) => rule.required() }
+                { name: 'href', title: 'Link URL', type: 'string', validation: (rule: Rule) => rule.required() },
+                { name: 'iconName', title: 'Icon', type: 'string', options: {list: ['Home', 'Camera', 'Images', 'BookOpen', 'HelpCircle', 'Mail']} },
+                { name: 'visible', title: 'Visible', type: 'boolean', initialValue: true },
               ],
               preview: {select: {title: 'name', subtitle: 'href'}},
             }
@@ -50,7 +46,6 @@ const headerFooter = {
       name: 'footerSection',
       title: 'Footer Section',
       type: 'object',
-      group: 'footer',
       options: {collapsible: true},
       fields: [
         {
@@ -83,6 +78,18 @@ const headerFooter = {
           title: 'Copyright Text',
           type: 'string',
           initialValue: '© 2026 Jiffy Ventures. All rights reserved.'
+        },
+        {
+          name: 'footerLinks',
+          title: 'Footer Links',
+          type: 'array',
+          of: [{type: 'siteLink'}],
+        },
+        {
+          name: 'logo',
+          title: 'Footer Logo',
+          type: 'image',
+          options: {hotspot: true},
         }
       ]
     },
@@ -92,7 +99,6 @@ const headerFooter = {
       name: 'whatsappSettings',
       title: 'WhatsApp Settings',
       type: 'object',
-      group: 'whatsapp',
       options: {collapsible: true},
       fields: [
         {
@@ -114,6 +120,16 @@ const headerFooter = {
           validation: (rule: Rule) => rule.required()
         }
       ]
+    },
+    {
+      name: 'siteSettings',
+      title: 'Global Site Settings',
+      type: 'object',
+      fields: [
+        {name: 'defaultSeo', title: 'Default SEO', type: 'seoSettings'},
+        {name: 'announcementText', title: 'Announcement text', type: 'string'},
+        {name: 'announcementVisible', title: 'Show announcement', type: 'boolean', initialValue: false},
+      ],
     }
   ],
   preview: {

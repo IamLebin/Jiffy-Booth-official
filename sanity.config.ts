@@ -16,7 +16,7 @@ import {StudioIcon} from './sanity/components/StudioIcon'
 import {StudioNavbar} from './sanity/components/StudioNavbar'
 import {jiffyTheme} from './sanity/theme'
 
-const singletonTypes = new Set(['mainPage', 'aboutUs', 'contactPage', 'faqPage', 'headerFooter'])
+const singletonTypes = new Set(['mainPage', 'aboutUs', 'contactPage', 'faqPage', 'headerFooter', 'portfolioPage', 'portfolioSeo', 'advicePage', 'homeHero', 'homeTemplates', 'homePortfolio', 'homeTrustedLogos', 'homeTestimonials', 'homeSeo', 'homeSettings', 'aboutIntro', 'aboutMedia', 'aboutTeam', 'aboutSeo', 'contactIntro', 'contactDetails', 'contactBooking', 'contactContent', 'contactSeo', 'faqIntro', 'faqSeo', 'headerNavigation', 'footerSocial', 'whatsappSettings'])
 const isDevelopment = process.env.NODE_ENV === 'development'
 
 export default defineConfig({

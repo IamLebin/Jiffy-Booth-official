@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -13,12 +13,61 @@ import {
 } from "lucide-react";
 import { MOCK_ARTICLES } from "../../../mock-data";
 
+type CmsArticle = {
+  slug: string;
+  title: string;
+  excerpt?: string;
+  author?: string;
+  publishedAt?: string;
+  categories?: string[];
+  image?: string;
+  body?: Array<{children?: Array<{text?: string}>}>;
+};
+
 export default function AdviceArticlePage() {
   const params = useParams();
   const slug = params?.slug as string;
   const [copied, setCopied] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const article = MOCK_ARTICLES?.find((a) => a.slug === slug);
+  const fallbackArticle = MOCK_ARTICLES?.find((a) => a.slug === slug);
+  const [cmsArticle, setCmsArticle] = useState<CmsArticle | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch(`/api/articles/${encodeURIComponent(slug)}`)
+      .then((response) => response.ok ? response.json() as Promise<CmsArticle> : null)
+      .then((data) => {
+        if (!cancelled) {
+          if (data) setCmsArticle(data);
+          setIsLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [slug]);
+
+  const article = cmsArticle
+    ? {
+        slug: cmsArticle.slug,
+        tag: cmsArticle.categories?.[0] || "Advice",
+        title: cmsArticle.title,
+        summary: cmsArticle.excerpt || "",
+        author: cmsArticle.author || "Jiffy Team",
+        date: cmsArticle.publishedAt ? new Date(cmsArticle.publishedAt).toLocaleDateString("en-US", {month: "short", day: "numeric", year: "numeric"}) : "",
+        readTime: "",
+        image: cmsArticle.image || "/hero.png",
+        content: (cmsArticle.body || []).flatMap((block) => [block.children?.map((child) => child.text || "").join("") || ""]).filter(Boolean),
+      }
+    : fallbackArticle;
+
+  if (!article && isLoading) {
+    return <main className="min-h-screen bg-white" />;
+  }
 
   if (!article) {
     return (

@@ -7,19 +7,12 @@ export default defineType({
   title: 'Our Services',
   type: 'document',
   icon: CaseIcon,
-  groups: [
-    {name: 'listing', title: 'Listing card', default: true},
-    {name: 'hero', title: 'Detail page hero'},
-    {name: 'content', title: 'Page content'},
-    {name: 'display', title: 'Display settings'},
-  ],
   fields: [
     // --- 1. LISTING GRID INFORMATION (Required for the main page) ---
     defineField({ 
       name: 'title', 
       title: 'Service Title', 
       type: 'string',
-      group: 'listing',
       description: 'The name shown on the services listing grid.',
       validation: (rule: any) => rule.required()
     }),
@@ -27,7 +20,6 @@ export default defineType({
       name: 'slug', 
       title: 'Slug', 
       type: 'slug', 
-      group: 'listing',
       options: { source: 'title' },
       validation: (rule: any) => rule.required()
     }),
@@ -35,7 +27,6 @@ export default defineType({
       name: 'description', 
       title: 'Service Description (Grid View)', 
       type: 'text',
-      group: 'listing',
       rows: 3,
       description: 'Short summary shown on the main services listing card.'
     }),
@@ -43,7 +34,6 @@ export default defineType({
       name: 'image', 
       title: 'Main Service Image (Grid View)', 
       type: 'image',
-      group: 'listing',
       description: 'The primary image shown on the listing card.',
       options: { hotspot: true }
     }),
@@ -51,7 +41,6 @@ export default defineType({
       name: 'order',
       title: 'Display Order',
       type: 'number',
-      group: 'display',
       description: 'Sort order on the main grid (1, 2, 3...)',
       validation: (rule: any) => rule.required()
     }),
@@ -59,7 +48,6 @@ export default defineType({
       name: 'accentColor', 
       title: 'Card Accent Color', 
       type: 'string', 
-      group: 'display',
       description: 'Hex code for the card background (e.g., #f5ebe0).',
       initialValue: '#f5ebe0' 
     }),
@@ -69,31 +57,33 @@ export default defineType({
       name: 'heroTitle',
       title: 'Detail Page Hero Title',
       type: 'string',
-      group: 'hero',
       description: 'Large title at the top of the detail page. If empty, uses Service Title.',
     }),
     defineField({
       name: 'heroSubtitle',
       title: 'Hero Subtitle',
       type: 'string',
-      group: 'hero',
       description: 'Text below the hero title. If empty, the website will show the Service Title.',
     }),
     defineField({
       name: 'heroBackgroundImage',
       title: 'Hero Background Image',
       type: 'image',
-      group: 'hero',
       description: 'Large background image for the top section.',
       options: { hotspot: true },
     }),
+    defineField({name: 'shortDescription', title: 'Short card description', type: 'text', rows: 3}),
+    defineField({name: 'gallery', title: 'Gallery images', type: 'array', of: [{type: 'mediaImage'}]}),
+    defineField({name: 'body', title: 'Long-form description', type: 'blockContent'}),
+    defineField({name: 'callToAction', title: 'Call to action', type: 'siteLink'}),
+    defineField({name: 'published', title: 'Published', type: 'boolean', initialValue: true}),
+    defineField({name: 'featured', title: 'Featured booth', type: 'boolean', initialValue: false}),
 
     // --- 3. FEATURED MEDIA SECTION (Optional) ---
     defineField({
       name: 'featuredMedia',
       title: 'Featured Media (Showcase)',
       type: 'object',
-      group: 'content',
       description: 'Sample showcase image or video below the hero.',
       fields: [
         {
@@ -130,7 +120,6 @@ export default defineType({
       name: 'features',
       title: 'Features Provided',
       type: 'array',
-      group: 'content',
       description: 'Icon + text features. Leave empty to hide this section.',
       of: [{
         type: 'object',
@@ -152,7 +141,6 @@ export default defineType({
       name: 'sections',
       title: 'Page Sections',
       type: 'array',
-      group: 'content',
       description: 'Drag to reorder sections. Add preset sections or create custom ones.',
       of: [
         // Setup Section

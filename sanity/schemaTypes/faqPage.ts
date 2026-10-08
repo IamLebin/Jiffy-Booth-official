@@ -1,4 +1,4 @@
-import {defineField, defineType} from 'sanity'
+import {defineField, defineType, type Rule} from 'sanity'
 import {HelpCircleIcon} from '@sanity/icons'
 
 export default defineType({
@@ -6,17 +6,12 @@ export default defineType({
   title: 'FAQ Page',
   type: 'document',
   icon: HelpCircleIcon,
-  groups: [
-    {name: 'intro', title: 'Page introduction', default: true},
-    {name: 'questions', title: 'Questions & answers'},
-  ],
   fields: [
-    defineField({ name: 'title', title: 'Page Title', type: 'string', initialValue: 'FAQ', group: 'intro' }),
+    defineField({ name: 'title', title: 'Page Title', type: 'string', initialValue: 'FAQ' }),
     defineField({ 
       name: 'subtitle', 
       title: 'Page Subtitle', 
       type: 'text', 
-      group: 'intro',
       rows: 2, 
       initialValue: 'Everything you need to know about booking Jiffy Booth.' 
     }),
@@ -24,7 +19,6 @@ export default defineType({
       name: 'faqs',
       title: 'Questions & Answers',
       type: 'array',
-      group: 'questions',
       of: [
         {
           type: 'object',
@@ -36,5 +30,19 @@ export default defineType({
         }
       ]
     }),
+    defineField({
+      name: 'categories',
+      title: 'FAQ Categories',
+      type: 'array',
+      of: [{type: 'object', fields: [
+        {name: 'title', title: 'Category name', type: 'string', validation: (rule: Rule) => rule.required()},
+        {name: 'order', title: 'Display order', type: 'number', initialValue: 0},
+        {name: 'faqs', title: 'Questions', type: 'array', of: [{type: 'object', fields: [
+          {name: 'question', title: 'Question', type: 'string', validation: (rule: Rule) => rule.required()},
+          {name: 'answer', title: 'Answer', type: 'blockContent', validation: (rule: Rule) => rule.required()},
+          {name: 'order', title: 'Display order', type: 'number', initialValue: 0},
+        ], preview: {select: {title: 'question'}}}]}], preview: {select: {title: 'title'}}}],
+    }),
+    defineField({name: 'seo', title: 'SEO Settings', type: 'seoSettings'}),
   ],
 })

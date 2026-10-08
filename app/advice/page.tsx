@@ -1,13 +1,36 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, BookOpen } from "lucide-react";
 import { MOCK_ARTICLES } from "../../mock-data";
+import { getArticles } from "@/sanity/lib/data";
 
-export default function AdviceListingPage() {
-  const featured = MOCK_ARTICLES[0];
-  const remaining = MOCK_ARTICLES.slice(1);
+type AdviceArticle = {
+  slug: string;
+  title: string;
+  summary: string;
+  author: string;
+  date: string;
+  readTime: string;
+  image: string;
+  tag: string;
+};
+
+export default async function AdviceListingPage() {
+  const cmsArticles = await getArticles();
+  const articles: AdviceArticle[] = cmsArticles.length > 0
+    ? cmsArticles.map((article) => ({
+        slug: article.slug,
+        title: article.title,
+        summary: article.excerpt || "Discover ideas and practical guidance for creating an unforgettable photo booth experience.",
+        author: article.author || "Jiffy Team",
+        date: article.publishedAt ? new Date(article.publishedAt).toLocaleDateString("en-US", {month: "short", day: "numeric", year: "numeric"}) : "",
+        readTime: "",
+        image: article.image || "/hero.png",
+        tag: article.categories?.[0] || "Advice",
+      }))
+    : MOCK_ARTICLES;
+  const featured = articles.find((article) => cmsArticles.length === 0 || cmsArticles.some((cmsArticle) => cmsArticle.slug === article.slug && cmsArticle.featured)) || articles[0];
+  const remaining = articles.filter((article) => article.slug !== featured.slug);
 
   return (
     <main className="min-h-screen bg-white text-jiffy-dark font-inter overflow-x-hidden">
