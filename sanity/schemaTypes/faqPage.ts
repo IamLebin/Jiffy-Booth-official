@@ -7,7 +7,7 @@ export default defineType({
   type: 'document',
   icon: HelpCircleIcon,
   fields: [
-    defineField({ name: 'title', title: 'Page Title', type: 'string', initialValue: 'FAQ' }),
+    defineField({ name: 'title', title: 'Page Title', type: 'string', hidden: true, initialValue: 'FAQ' }),
     defineField({ 
       name: 'subtitle', 
       title: 'Page Subtitle', 
@@ -45,4 +45,17 @@ export default defineType({
     }),
     defineField({name: 'seo', title: 'SEO Settings', type: 'seoSettings'}),
   ],
+  preview: {
+    select: {
+      title: 'title',
+      subtitle: 'subtitle',
+    },
+    prepare(selection) {
+      const {title, subtitle} = selection
+      return {
+        title: title || 'FAQ',
+        subtitle: subtitle ? 'FAQ page' : undefined,
+      }
+    },
+  },
 })

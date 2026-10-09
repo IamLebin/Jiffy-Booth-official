@@ -12,7 +12,33 @@ import {
 } from '@sanity/icons'
 import type {ComponentType} from 'react'
 import type {StructureBuilder, StructureResolver} from 'sanity/structure'
+import {sectionHeadings} from './schemaTypes/pageSections' // adjust path
 
+/**
+ * For section types built with defineSection().
+ * The pane title and form heading come from the heading defined in the schema.
+ * `listTitle` optionally overrides the label in the list (e.g. 'SEO').
+ */
+const sectionItem = (S: StructureBuilder, typeName: string, icon: ComponentType, listTitle?: string) => {
+  const heading = sectionHeadings[typeName] ?? typeName
+
+  return S.listItem()
+    .id(typeName)
+    .title(listTitle ?? heading)
+    .icon(icon)
+    .child(
+      S.document()
+        .schemaType(typeName)
+        .documentId(typeName)
+        .title(heading)
+        .initialValueTemplate(typeName),
+    )
+}
+
+/**
+ * For types that are not built with defineSection().
+ * The pane title now matches the list label instead of falling back to "Untitled".
+ */
 const singleton = (
   S: StructureBuilder,
   title: string,
@@ -25,14 +51,26 @@ const singleton = (
     .title(title)
     .id(documentId)
     .icon(icon)
-    .child(S.document().schemaType(schemaType).documentId(documentId).initialValueTemplate(templateId || schemaType))
+    .child(
+      S.document()
+        .schemaType(schemaType)
+        .documentId(documentId)
+        .title(title)
+        .initialValueTemplate(templateId || schemaType),
+    )
 
 const homeSection = (S: StructureBuilder, title: string, schemaType: string, documentId: string, icon: ComponentType) =>
   S.listItem()
     .title(title)
     .id(`home-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`)
     .icon(icon)
-    .child(S.document().schemaType(schemaType).documentId(documentId).initialValueTemplate(schemaType))
+    .child(
+      S.document()
+        .schemaType(schemaType)
+        .documentId(documentId)
+        .title(title)
+        .initialValueTemplate(schemaType),
+    )
 
 export const structure: StructureResolver = (S) =>
   S.list()
@@ -47,14 +85,15 @@ export const structure: StructureResolver = (S) =>
             .title('Home')
             .items([
               homeSection(S, 'Hero Section', 'homeHero', 'homeHero', HomeIcon),
-                singleton(S, 'Portfolio', 'homePortfolio', 'homePortfolio', ImagesIcon),
-                homeSection(S, 'Sample Templates', 'homeTemplates', 'homeTemplates', ImagesIcon),
-                singleton(S, 'Trusted By Logos', 'homeTrustedLogos', 'homeTrustedLogos', HomeIcon),
-                singleton(S, 'Testimonials', 'homeTestimonials', 'homeTestimonials', CommentIcon),
-                singleton(S, 'SEO', 'homeSeo', 'homeSeo', CogIcon),
+              singleton(S, 'Portfolio', 'homePortfolio', 'homePortfolio', ImagesIcon),
+              homeSection(S, 'Sample Templates', 'homeTemplates', 'homeTemplates', ImagesIcon),
+              singleton(S, 'Trusted By Logos', 'homeTrustedLogos', 'homeTrustedLogos', HomeIcon),
+              singleton(S, 'Testimonials', 'homeTestimonials', 'homeTestimonials', CommentIcon),
+              singleton(S, 'SEO', 'homeSeo', 'homeSeo', CogIcon),
               homeSection(S, 'Homepage Settings', 'homeSettings', 'homeSettings', CogIcon),
             ]),
         ),
+
       S.listItem()
         .title('About Us')
         .id('about-us')
@@ -63,17 +102,19 @@ export const structure: StructureResolver = (S) =>
           S.list()
             .title('About Us')
             .items([
-              singleton(S, 'Get to Know Us Better', 'aboutIntro', 'aboutIntro', UsersIcon),
-              singleton(S, 'Photo Strips', 'aboutMedia', 'aboutMedia', ImagesIcon),
-              singleton(S, 'Team Story', 'aboutTeam', 'aboutTeam', UsersIcon),
-              singleton(S, 'SEO', 'aboutSeo', 'aboutSeo', CogIcon),
+              sectionItem(S, 'aboutIntro', UsersIcon),
+              sectionItem(S, 'aboutMedia', ImagesIcon),
+              sectionItem(S, 'aboutTeam', UsersIcon),
+              sectionItem(S, 'aboutSeo', CogIcon, 'SEO'),
             ]),
         ),
+
       S.listItem()
         .title('Our Services')
         .id('our-services')
         .icon(CaseIcon)
         .child(S.documentTypeList('ourServices').title('All Booths').defaultOrdering([{field: 'order', direction: 'asc'}])),
+
       S.listItem()
         .title('Portfolio')
         .id('portfolio')
@@ -91,7 +132,8 @@ export const structure: StructureResolver = (S) =>
                 S.documentTypeList('ourEvents').title('All Portfolio Photos').defaultOrdering([{field: 'order', direction: 'asc'}]),
               ),
             ]),
-      ),
+        ),
+
       S.listItem()
         .title('Advice')
         .id('advice')
@@ -108,7 +150,8 @@ export const structure: StructureResolver = (S) =>
               ),
               singleton(S, 'SEO', 'advicePage', 'advicePage', CogIcon),
             ]),
-      ),
+        ),
+
       S.listItem()
         .title('FAQ')
         .id('faq')
@@ -117,16 +160,17 @@ export const structure: StructureResolver = (S) =>
           S.list()
             .title('FAQ')
             .items([
-              singleton(S, 'FAQ Page Content', 'faqIntro', 'faqIntro', HelpCircleIcon),
+              sectionItem(S, 'faqIntro', HelpCircleIcon),
               S.listItem().title('Questions and Answers').child(
                 S.documentTypeList('faqItem').title('Questions').defaultOrdering([{field: 'order', direction: 'asc'}]),
               ),
               S.listItem().title('Categories').child(
                 S.documentTypeList('faqCategory').title('Categories').defaultOrdering([{field: 'order', direction: 'asc'}]),
               ),
-              singleton(S, 'SEO', 'faqSeo', 'faqSeo', CogIcon),
+              sectionItem(S, 'faqSeo', CogIcon, 'SEO'),
             ]),
-      ),
+        ),
+
       S.listItem()
         .title('Contact Us')
         .id('contact-us')
@@ -135,23 +179,30 @@ export const structure: StructureResolver = (S) =>
           S.list()
             .title('Contact Us')
             .items([
-              singleton(S, 'Contact and Booking Page', 'contactIntro', 'contactIntro', EnvelopeIcon),
-              singleton(S, 'Contact Details', 'contactDetails', 'contactDetails', EnvelopeIcon),
-              singleton(S, 'How to Book', 'contactBooking', 'contactBooking', BookIcon),
-              singleton(S, 'Additional Content', 'contactContent', 'contactContent', ImagesIcon),
-              singleton(S, 'SEO', 'contactSeo', 'contactSeo', CogIcon),
+              sectionItem(S, 'contactIntro', EnvelopeIcon),
+              sectionItem(S, 'contactDetails', EnvelopeIcon),
+              sectionItem(S, 'contactBooking', BookIcon),
+              sectionItem(S, 'contactContent', ImagesIcon),
+              sectionItem(S, 'contactSeo', CogIcon, 'SEO'),
             ]),
-      ),
+        ),
+
       S.divider().title('Site-wide'),
+
       S.listItem()
         .title('Header & Footer')
         .id('header-footer')
         .icon(CogIcon)
-        .child(S.list().title('Header & Footer').items([
-          singleton(S, 'Header Navigation', 'headerNavigation', 'headerNavigation', HomeIcon),
-          singleton(S, 'Footer and Social Links', 'footerSocial', 'footerSocial', ImagesIcon),
-          singleton(S, 'WhatsApp Settings', 'whatsappSettings', 'whatsappSettings', EnvelopeIcon),
-        ])),
+        .child(
+          S.list()
+            .title('Header & Footer')
+            .items([
+              sectionItem(S, 'headerNavigation', HomeIcon),
+              sectionItem(S, 'footerSocial', ImagesIcon),
+              sectionItem(S, 'whatsappSettings', EnvelopeIcon),
+            ]),
+        ),
+
       S.listItem()
         .title('Legal Pages')
         .id('legal')

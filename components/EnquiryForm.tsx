@@ -52,7 +52,10 @@ export default function EnquiryForm({ whatsappNumber = '60172082266', isDarkBack
   const inputClass = "w-full bg-gray-50 border border-gray-200 rounded-lg p-3 outline-none focus:border-jiffy-dark transition-colors text-jiffy-dark";
 
   return (
-    <div className={`bg-white rounded-[2rem] p-8 md:p-10 shadow-2xl text-jiffy-dark ${isDarkBackground ? 'border border-gray-100' : ''}`}>
+    <div
+      suppressHydrationWarning
+      className={`bg-white rounded-[2rem] p-8 md:p-10 shadow-2xl text-jiffy-dark ${isDarkBackground ? 'border border-gray-100' : ''}`}
+    >
       <h2 className="text-3xl font-bold mb-8 uppercase tracking-tighter">Quotation Request</h2>
       
       <form onSubmit={handleSubmit} className="space-y-6">

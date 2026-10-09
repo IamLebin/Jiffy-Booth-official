@@ -90,5 +90,17 @@ export default defineType({
       ],
     }),
   ],
-  preview: {select: {title: 'heroTitle'}},
+  preview: {
+    select: {
+      title: 'heroTitle',
+      subtitle: 'heroBio',
+    },
+    prepare(selection) {
+      const {title, subtitle} = selection
+      return {
+        title: title || 'Home',
+        subtitle: subtitle ? 'Homepage content' : undefined,
+      }
+    },
+  },
 })

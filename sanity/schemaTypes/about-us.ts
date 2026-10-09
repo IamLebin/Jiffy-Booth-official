@@ -11,6 +11,7 @@ export default defineType({
       name: 'pageTitle',
       title: 'Page Main Title',
       type: 'string',
+      hidden: true,
       initialValue: 'The Team Behind Your Favorite Memories',
     }),
     defineField({
@@ -58,4 +59,17 @@ export default defineType({
     defineField({name: 'sections', title: 'Page Sections', type: 'array', of: [{type: 'contentSection'}]}),
     defineField({name: 'seo', title: 'SEO Settings', type: 'seoSettings'}),
   ],
+  preview: {
+    select: {
+      title: 'pageTitle',
+      subtitle: 'description',
+    },
+    prepare(selection) {
+      const {title, subtitle} = selection
+      return {
+        title: title || 'About Us',
+        subtitle: subtitle ? 'About Us page' : undefined,
+      }
+    },
+  },
 })

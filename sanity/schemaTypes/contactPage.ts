@@ -8,7 +8,7 @@ export default defineType({
   icon: EnvelopeIcon,
   fields: [
     // --- HERO ---
-    defineField({ name: 'title', title: 'Page Title', type: 'string' }),
+    defineField({ name: 'title', title: 'Page Title', type: 'string', hidden: true, initialValue: 'Contact Us' }),
     defineField({ name: 'heroBio', title: 'Hero Description', type: 'text', rows: 2 }),
     defineField({ name: 'heroBackgroundImage', title: 'Hero Background Image', type: 'image', options: { hotspot: true } }),
 
@@ -38,4 +38,17 @@ export default defineType({
     defineField({name: 'sections', title: 'Additional Sections', type: 'array', of: [{type: 'contentSection'}]}),
     defineField({name: 'seo', title: 'SEO Settings', type: 'seoSettings'}),
   ],
+  preview: {
+    select: {
+      title: 'title',
+      subtitle: 'heroBio',
+    },
+    prepare(selection) {
+      const {title, subtitle} = selection
+      return {
+        title: title || 'Contact Us',
+        subtitle: subtitle ? 'Contact page' : undefined,
+      }
+    },
+  },
 })

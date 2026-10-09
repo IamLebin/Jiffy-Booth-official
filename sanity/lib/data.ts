@@ -241,7 +241,7 @@ export async function getArticleBySlug(slug: string): Promise<ArticleDetail | nu
 }
 
 export async function getPageContent<T>(page: PageKey): Promise<T | null> {
-  const data = await client.fetch<{legacy?: T; intro?: T; media?: T; team?: T; details?: T; booking?: T; content?: T; questions?: T; categories?: T; seo?: T}>(pageQueries[page], {}, cachedOptions(`page-${page}`));
+  const data = await client.fetch<{legacy?: T; intro?: T; media?: T; team?: T; details?: T; booking?: T; content?: T; questions?: T; categories?: T; seo?: T}>(pageQueries[page], {}, cachedOptions(`page-${page}`, 0));
   if (!data) return null;
   return {
     ...(data.legacy || {}),

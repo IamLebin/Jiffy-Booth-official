@@ -7,7 +7,7 @@ export default defineType({
   type: 'document',
   icon: ImagesIcon,
   fields: [
-    defineField({name: 'title', title: 'Page title', type: 'string', initialValue: 'Portfolio'}),
+    defineField({name: 'title', title: 'Page title', type: 'string', hidden: true, initialValue: 'Portfolio'}),
     defineField({name: 'intro', title: 'Page introduction', type: 'text', rows: 3}),
     defineField({
       name: 'categories',
@@ -17,5 +17,17 @@ export default defineType({
       of: [{type: 'reference', to: [{type: 'portfolioCategory'}]}],
     }),
   ],
-  preview: {select: {title: 'title'}},
+  preview: {
+    select: {
+      title: 'title',
+      subtitle: 'intro',
+    },
+    prepare(selection) {
+      const {title, subtitle} = selection
+      return {
+        title: title || 'Portfolio',
+        subtitle: subtitle ? 'Portfolio page' : undefined,
+      }
+    },
+  },
 })
