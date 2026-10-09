@@ -81,7 +81,7 @@ export default function AboutUsClient({ data }: { data: AboutUsDocument | null }
             <h2 className="text-[#1c2431] font-bold leading-[0.9] tracking-tighter text-[clamp(48px,6vw,96px)]">
               {about.pageTitle || "The Team Behind Your Favorite Memories"}
             </h2>
-            <p className="text-gray-500 leading-relaxed text-base md:text-lg lg:text-[clamp(16px,1.2vw,20px)]">
+            <p className="text-500 leading-relaxed text-base md:text-lg lg:text-[clamp(16px,1.2vw,20px)]">
               {about.description || "We believe that capturing the little moments are the most important part of any event."}
             </p>
           </div>
