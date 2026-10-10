@@ -139,9 +139,6 @@ export default function AboutUsClient({ data }: { data: AboutUsDocument | null }
           <div className="text-center space-y-2">
             <div className="space-y-4 text-left text-black text-[17px] md:text-lg leading-[1.7]">
               <p>
-                {about.description || "We believe that capturing the little moments are the most important part of any event."}
-              </p>
-              <p>
                 {about.teamBio || "All our events will be accompanied by two professional onsite attendants."}
               </p>
               <p>

@@ -104,7 +104,7 @@ export const structure: StructureResolver = (S) =>
             .items([
               sectionItem(S, 'aboutIntro', UsersIcon),
               sectionItem(S, 'aboutMedia', ImagesIcon),
-              sectionItem(S, 'aboutTeam', UsersIcon),
+              sectionItem(S, 'ourStory', UsersIcon),
               sectionItem(S, 'aboutSeo', CogIcon, 'SEO'),
             ]),
         ),

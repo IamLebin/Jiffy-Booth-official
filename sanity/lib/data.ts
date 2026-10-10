@@ -154,7 +154,7 @@ const pageQueries = {
     "legacy": *[_type == "aboutUs"][0],
     "intro": *[_type == "aboutIntro"][0],
     "media": *[_type == "aboutMedia"][0],
-    "team": *[_type == "aboutTeam"][0],
+    "team": *[_type == "aboutUs"][0],
     "seo": *[_type == "aboutSeo"][0].seo
   }`,
   faq: groq`{

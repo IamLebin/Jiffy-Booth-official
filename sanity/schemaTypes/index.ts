@@ -54,7 +54,7 @@ export const schema = {
     {id: 'portfolioSeo', title: 'Portfolio SEO', schemaType: 'portfolioSeo', value: {documentTitle: 'Portfolio SEO'}},
     {id: 'aboutIntro', title: 'Get to Know Us Better', schemaType: 'aboutIntro', value: {documentTitle: 'Get to Know Us Better'}},
     {id: 'aboutMedia', title: 'Photo Strips', schemaType: 'aboutMedia', value: {documentTitle: 'Photo Strips'}},
-    {id: 'aboutTeam', title: 'Team Story', schemaType: 'aboutTeam', value: {documentTitle: 'Team Story'}},
+    {id: 'ourStory', title: 'Our Story', schemaType: 'ourStory', value: {documentTitle: 'Our Story'}},
     {id: 'aboutSeo', title: 'About Us SEO', schemaType: 'aboutSeo', value: {documentTitle: 'About Us SEO'}},
     {id: 'contactIntro', title: 'Contact and Booking Page', schemaType: 'contactIntro', value: {documentTitle: 'Contact and Booking Page'}},
     {id: 'contactDetails', title: 'Contact Details', schemaType: 'contactDetails', value: {documentTitle: 'Contact Details'}},

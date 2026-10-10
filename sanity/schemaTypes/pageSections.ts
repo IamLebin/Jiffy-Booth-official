@@ -57,7 +57,7 @@ const defineSection = ({name, title, heading, icon, fields}: SectionConfig) => {
 export const aboutIntro = defineSection({
   name: 'aboutIntro',
   title: 'About Us Introduction',
-  heading: 'Get to Know Us Better',
+  heading: 'About Us Introduction',
   icon: UsersIcon,
   fields: [
     defineField({name: 'pageTitle', title: 'Page Main Title', type: 'string'}),
@@ -77,15 +77,15 @@ export const aboutMedia = defineSection({
   ],
 })
 
-export const aboutTeam = defineSection({
-  name: 'aboutTeam',
-  title: 'About Us Team Story',
-  heading: 'Team Story',
+export const ourStory = defineSection({
+  name: 'ourStory',
+  title: 'Our Story',
+  heading: 'Our Story',
   icon: UsersIcon,
   fields: [
-    defineField({name: 'teamName', title: 'Team Name', type: 'string'}),
-    defineField({name: 'teamBio', title: 'Team Bio/Quote', type: 'text'}),
-    defineField({name: 'teamPhoto', title: 'Main Team Photo', type: 'image', options: {hotspot: true}}),
+    defineField({name: 'sectionTitle', title: 'Section Title', type: 'string'}),
+    defineField({name: 'sectionText', title: 'Text', type: 'text'}),
+    defineField({name: 'sectionPhoto', title: 'Section Photo', type: 'image', options: {hotspot: true}}),
     defineField({name: 'sections', title: 'Additional Sections', type: 'array', of: [{type: 'contentSection'}]}),
   ],
 })
@@ -261,7 +261,7 @@ export const whatsappSettings = defineSection({
 export const pageSectionTypes = [
   aboutIntro,
   aboutMedia,
-  aboutTeam,
+  ourStory,
   aboutSeo,
   contactIntro,
   contactDetails,
